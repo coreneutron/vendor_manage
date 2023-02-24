@@ -1,0 +1,42 @@
+{
+    "Title":"企業リスト",
+
+    "Name":"お名前",
+    "Password":"パスワード",
+    "Password Confirmation":"パスワード確認",
+    "Already have an account?":"すでにアカウントをお持ちですか？",
+    "Login":"ログイン",
+    "SignUp":"新規登録",
+    
+    "Trader Management" : "業者設定",
+    "Routing Management" : "経路設定",
+    "Clipboard Management" : "クリップボード設定",
+    "User Management":"ユーザー管理",
+    
+    "Setting":"設定",
+
+    "List" : "一覧",
+    "User Name" : "ユーザー名",
+    "User ID" : "ユーザーID",
+    "Email" : "メール",
+    "Role" : "役割",
+    "Status" : "スターテス",
+    "Disabled" : "非アクティブ",
+    "Enabled" : "アクティブ",
+    
+    "Trader List" : "業者一覧",
+    "Trader Create": "業者登録 ページ",
+    "Trader Edit" : "業者編集 ページ",
+
+    "Routing List" : "経路一覧",
+    
+    "Date" : "日付",
+    "Routing" : "経路",
+    "Company Name" : "社名",
+    "Telephone Number" : "電話番号",
+    "Prefectures" : "都道府県",
+    
+    "ID" : "ID",
+    "Path Name" : "経路名",
+    "Display Order" : "表示順"
+}
