@@ -38,5 +38,7 @@
     
     "ID" : "ID",
     "Path Name" : "経路名",
-    "Display Order" : "表示順"
+    "Display Order" : "表示順",
+
+    "Csv Add" : "CSV追加"
 }

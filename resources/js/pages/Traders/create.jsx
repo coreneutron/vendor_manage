@@ -13,12 +13,14 @@ import { useLaravelReactI18n } from 'laravel-react-i18n'
 import { prefecturesList } from '../../utils/prefectures';
 import { Check } from "@mui/icons-material";
 
+import DataTable from "../../components/DataTable";
+
 const TextMaskCustom = React.forwardRef(function TextMaskCustom(props, ref) {
   const { onChange, ...other } = props;
   return (
     <IMaskInput
       {...other}
-      mask="(#00) 000-0000"
+      mask="#00-000-0000"
       definitions={{
         '#': /[1-9]/,
       }}
@@ -45,9 +47,88 @@ const Create = (props) => {
     date: '',
     company_name: '',
     routing_id: 0,
-    telephone_number: '(123) 456-7890',
+    telephone_number: '123-456-7890',
     prefecture_id: 0
   });
+
+  const traderColumns = [
+    {
+      field: 'id',
+      headerName: 'ID',
+      maxWidth: 150,
+    },
+    {
+      field: 'company_name',
+      headerName: t('Company Name'),
+      editable: true,
+      flex: 1,
+    },
+    {
+      field: 'date',
+      headerName: t('Date'),
+      maxWidth: 200,
+      editable: true,
+      type: 'date',
+      flex: 1,
+    }, 
+    {
+      field: 'routing_id',
+      headerName: t('Routing'),
+      flex: 1,
+      renderCell: () => (
+        <FormControl variant="standard" fullWidth>
+          <Select
+            labelId="demo-simple-select-standard-label"
+            id="demo-simple-select-standard"
+            name="route"
+            value={trader.routing_id}
+          >
+          {
+            routing.length > 0 && routing.map((item, index) => 
+              <MenuItem value={item.id} key={index}>{item.path_name}</MenuItem>
+            )
+          }
+          </Select>
+        </FormControl>
+      ),
+    },
+    {
+      field: 'telephone_number',
+      headerName: t('Telephone Number'),
+      flex: 1,
+      renderCell: () => (
+        <Input
+          value={trader.telephone_number}
+          name="textmask"
+          id="formatted-text-mask-input"
+          inputComponent={TextMaskCustom}
+        />
+      )
+    },
+    {
+      field: 'prefecture_id',
+      headerName: t('Prefectures'),
+      renderCell: () => (
+        <FormControl variant="standard" fullWidth>
+          <Select
+            labelId="demo-simple-select-standard-label"
+            id="demo-simple-select-standard"
+            name="prefecture_id"
+            value={trader.prefecture_id}
+          >
+          {
+            prefecturesList.length > 0 && prefecturesList.map((item, index) => 
+              <MenuItem value={item.id} key={index}>{item.value}</MenuItem>
+            )
+          }
+          </Select>
+        </FormControl>
+      ),
+    }
+  ]
+
+
+  const [traders, setTraders] = useState([]);
 
   useEffect(() => {
     getRouting();
@@ -87,6 +168,7 @@ const Create = (props) => {
   };
 
   const handleReset = () => {
+    setCheckStatus(0);
     setActiveStep(0);
   };
 
@@ -106,11 +188,13 @@ const Create = (props) => {
       dispatch(startAction())
       try {
         const res = await agent.common.checkTrader(trader)
+        console.log(res.data)
         if (res.data.success) {
           setCheckStatus(3);
           setActiveStep((prevActiveStep) => prevActiveStep + 1);
         } else {
           setCheckStatus(2);
+          setTraders(res.data.data)
         } 
         dispatch(endAction())
       } catch (error) {
@@ -172,8 +256,7 @@ const Create = (props) => {
             id="date" 
             type="date"
             name="date" 
-            label={ t('Date') } 
-            defaultValue="1990-01-01"
+            label={ t('Date') }
             InputLabelProps={{
               shrink: true,
             }}
@@ -247,7 +330,9 @@ const Create = (props) => {
             if (isStepFailed(index)) {
               labelProps.optional = (
                 <Typography variant="caption" color="error">
-                  Alert message
+                {
+                  checkStatus === 2 ? 'Duplicated' : null
+                }
                 </Typography>
               );
 
@@ -337,6 +422,12 @@ const Create = (props) => {
         )}
         </div>
       </div>
+      {
+        checkStatus === 2 && traders.length > 0 &&
+        <DataTable 
+          data={traders}
+          columns={traderColumns} />
+      }
       <hr />
       <div className="action_btn_group">
         <Button color="primary" startIcon={<ArrowBackIcon />} onClick={() => clickCancelBtn()}>

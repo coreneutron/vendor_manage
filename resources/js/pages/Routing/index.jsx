@@ -19,13 +19,14 @@ const Routing = (props) => {
   const [type, setType] = useState('create');
 
   const routingListColumns = [
-    {
-      field: '',
-      headerName: t('ID'),
-      renderCell: (params) => (
-        <span key={params.id}>{params.id}</span>
-      )
-    },
+    // {
+    //   field: '',
+    //   headerName: t('ID'),
+    //   editable: false,
+    //   renderCell: (params) => (
+    //     <span key={params.id}>{params.id}</span>
+    //   )
+    // },
     {
       field: 'path_name',
       headerName: t('Path Name'),
@@ -48,6 +49,8 @@ const Routing = (props) => {
   }, [])
 
   const handleSaveClick = async(data) => {
+    if(!data.path_name || !data.display_order )
+      return dispatch(showToast('error', 'All values must be entered!'));
     if(type == 'create') {
       dispatch(startAction())
       try {

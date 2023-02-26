@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Trader;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 
 class TraderController extends Controller
 {
@@ -14,7 +15,7 @@ class TraderController extends Controller
      */
     public function index()
     {
-        $traders = Trader::all()->paginate(100);
+        $traders = Trader::paginate(100);
         return response()->json([
             'success' => true,
             'data' => $traders
@@ -91,7 +92,8 @@ class TraderController extends Controller
      */
     public function destroy(Trader $trader)
     {
-        //
+        $trader->delete();
+        return response()->json([ 'success' => true ]);
     }
 
         /**
@@ -102,15 +104,10 @@ class TraderController extends Controller
      */
     public function check(Request $request)
     {
-        // print_r($request->date);
-        // print_r($request->company_name);
-        // print_r($request->routing_id);
-        // print_r($request->telephone_number);
-        // print_r($request->prefecture_id);
-        $traders = Trader::where('company_name', 'LIKE', $request->company_name)->get();
-        return response()->json([
-            'success' => true,
-            'data' => $traders
-        ]);
+        $traders = Trader::where('company_name', $request->company_name)->get();
+        if(count($traders) > 0)
+            return response()->json(['success' => false, 'data' => $traders]);
+        else
+            return response()->json(['success' => true, 'data' => $traders]);
     }
 }

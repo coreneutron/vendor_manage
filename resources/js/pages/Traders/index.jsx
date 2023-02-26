@@ -10,6 +10,10 @@ import { GridActionsCellItem } from '@mui/x-data-grid';
 
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Close';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 
 import { startAction, endAction, showToast } from '../../actions/common'
 import agent from '../../api/'
@@ -21,12 +25,16 @@ import { useLaravelReactI18n } from 'laravel-react-i18n'
 import { prefecturesList } from '../../utils/prefectures';
 import Create from './create';
 
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css'
+import {BsExclamationCircle} from "react-icons/bs"
+
 const TextMaskCustom = React.forwardRef(function TextMaskCustom(props, ref) {
   const { onChange, ...other } = props;
   return (
     <IMaskInput
       {...other}
-      mask="(#00) 000-0000"
+      mask="#00-000-0000"
       definitions={{
         '#': /[1-9]/,
       }}
@@ -51,14 +59,21 @@ const Traders = () => {
   const [page, setPage] = useState('list');
   const [cardTitle, setCardTitle] = useState(t('Trader List'));
   const [routing, setRouting] = useState([]);
-  
+  const [traders, setTraders] = useState([]);
+  const [eidtTrader, setEditTrader] = useState({
+    date: '',
+    company_name: '',
+    routing_id: 0,
+    telephone_number: '123-456-7890',
+    prefecture_id: 0
+  });
+
   const [values, setValues] = useState({
     textmask: '(100) 000-0000',
     numberformat: '1320',
   });
 
   const [age, setAge] = useState('');
-
   const [companies, setCompanies] = useState([])
   const [companyLog, setCompanyLog] = useState([])
   const [companyRecordLog, setCompanyRecordLog] = useState([])
@@ -80,7 +95,7 @@ const Traders = () => {
     company_name: ''
   })
 
-  const companyColumns = [
+  const traderColumns = [
     {
       field: 'id',
       headerName: 'ID',
@@ -89,58 +104,74 @@ const Traders = () => {
     {
       field: 'company_name',
       headerName: t('Company Name'),
-      editable: true,
+      editable: false,
       flex: 1,
     },
     {
       field: 'date',
       headerName: t('Date'),
       maxWidth: 200,
-      editable: true,
+      editable: false,
       type: 'date',
       flex: 1,
     }, 
     {
-      field: 'route',
-      headerName: t('Route'),
+      field: 'routing_id',
+      headerName: t('Routing'),
       flex: 1,
-      renderCell: () => (
+      renderCell: (params) => {
+        return <FormControl variant="standard" fullWidth>
+          <Select
+            labelId="demo-simple-select-standard-label"
+            id="demo-simple-select-standard"
+            name="routing"
+            value={params.row.routing_id}
+            disabled
+          >
+          {
+            routing.length > 0 && routing.map((item, index) => 
+              <MenuItem value={item.id} key={index}>{item.path_name}</MenuItem>
+            )
+          }
+          </Select>
+        </FormControl>
+      },
+    },
+    {
+      field: 'telephone_number',
+      headerName: t('Telephone Number'),
+      flex: 1,
+      renderCell: (params) => (
+        <Input
+          value={params.row.telephone_number}
+          name="textmask"
+          id="formatted-text-mask-input"
+          inputComponent={TextMaskCustom}
+          disabled
+        />
+      )
+    },
+    {
+      field: 'prefecture_id',
+      headerName: t('Prefectures'),
+      flex: 1,
+      renderCell: (params) => (
         <FormControl variant="standard" fullWidth>
           <Select
             labelId="demo-simple-select-standard-label"
             id="demo-simple-select-standard"
-            name="route"
-            value={age}
-            label="Age"
+            name="prefecture_id"
+            value={params.row.prefecture_id}
+            disabled
           >
           {
-            routing.length > 0 && routing.map((item, index) => 
-              <MenuItem value={item.path_name} key={index}>{item.path_name}</MenuItem>
+            prefecturesList.length > 0 && prefecturesList.map((item, index) => 
+              <MenuItem value={item.id} key={index}>{item.value}</MenuItem>
             )
           }
           </Select>
         </FormControl>
       ),
-    },
-
-    {
-      field: 'telephone_number',
-      headerName: t('Telephone Number'),
-      flex: 1,
-      renderCell: () => (
-        <Input
-          value={values.textmask}
-          name="textmask"
-          id="formatted-text-mask-input"
-          inputComponent={TextMaskCustom}
-        />
-      )
-    },
-    {
-      field: 'prefectures',
-      headerName: t('Prefectures'),
-      editable: true,
-      flex: 1,
     }, 
     {
       field: 'actions',
@@ -148,19 +179,19 @@ const Traders = () => {
       headerName: '操作',
       minWidth: 100,
       cellClassName: 'actions',
-      getActions: ({ id }) => {
+      getActions: ( params ) => {
         return [
-          <GridActionsCellItem
-            icon={<EditIcon />}
-            label="Edit"
-            className="table_inline_btn"
-            onClick={() => goCompanyEdit(id)}
-            color="inherit"
-          />,
+          // <GridActionsCellItem
+          //   icon={<EditIcon />}
+          //   label="Edit"
+          //   className="table_inline_btn"
+          //   onClick={()=>handleTraderEdit(params.row)}
+          //   color="inherit"
+          // />,
           <GridActionsCellItem
             icon={<DeleteIcon />}
             label="Delete"
-            onClick={handleDeleteClick(id)}
+            onClick={()=>handleDeleteClick(params.row.id)}
             color="inherit"
           />
         ];
@@ -170,7 +201,7 @@ const Traders = () => {
 
   useEffect(() => {
     getRouting();
-    // getCompanyData()
+    getTraders()
   }, [])
 
   const getRouting = async() => {
@@ -179,6 +210,27 @@ const Traders = () => {
       const res = await agent.common.getRouting()
       if (res.data.success) {
         setRouting([...res.data.data])
+      }
+      dispatch(endAction())
+    } catch (error) {
+      if (error.response.status >= 400 && error.response.status <= 500) {
+        dispatch(endAction())
+        dispatch(showToast('error', error.response.data.message))
+        if (error.response.data.message == 'Unauthorized') {
+          localStorage.removeItem('token')
+          dispatch(logout())
+          navigate('/')
+        }
+      }
+    }
+  }
+
+  const getTraders = async() => {
+    dispatch(startAction())
+    try {
+      const res = await agent.common.getTraders();
+      if (res.data.success) {
+        setTraders([...res.data.data.data])
       }
       dispatch(endAction())
     } catch (error) {
@@ -233,6 +285,45 @@ const Traders = () => {
     setCardTitle(t('Trader List'))
   }
 
+  const handleDeleteClick= (id) => {
+    confirmAlert({
+      customUI: ({ onClose }) => {
+        return (
+          <div className='custom_alert'>
+            <h1><BsExclamationCircle /></h1>
+            <p>本当に削除しますか？</p>
+            <div className="btn_group">
+              <button type="button" className="btn btn-secondary" onClick={onClose}>いいえ</button>
+              <button type="button" className="btn btn-success" onClick={() => {onClose(); handleTraderDelete(id);}}>はい</button>
+            </div>
+          </div>
+        );
+      }
+    });
+  }
+
+  const handleTraderDelete = async(id) => {
+    dispatch(startAction())
+    try {
+      const res = await agent.common.deleteTrader(id);
+      if (res.data.success) {
+        getTraders();
+        dispatch(showToast('success', 'Successfully deleted!'))
+      }
+      dispatch(endAction())
+    } catch (error) {
+      if (error.response.status >= 400 && error.response.status <= 500) {
+        dispatch(endAction())
+        dispatch(showToast('error', error.response.data.message))
+        if (error.response.data.message == 'Unauthorized') {
+          localStorage.removeItem('token')
+          dispatch(logout())
+          navigate('/')
+        }
+      }
+    }
+  }
+
   return (
     <>
       <div className="main-body">
@@ -240,8 +331,13 @@ const Traders = () => {
           <div className="row">
             <div className="col">
               <div className="card">
-                <div className="card-header">
+                <div className="card-header" style={{display: 'flex', justifyContent:'space-between'}}>
                   <h5 className="card-title">{cardTitle}</h5>
+                  <div style={{display: 'flex'}}>
+                    <div style={{cursor: 'pointer', marginRight: '20px'}} onClick={()=>downloadExcel()}>
+                      <FileUploadIcon />{t('Csv Add')}
+                    </div>
+                  </div>
                 </div>
                 <div className="card-body">
                   <div className="row">
@@ -251,12 +347,11 @@ const Traders = () => {
                           <>
                             <div className="table_container">
                               <DataTable 
-                                data={companies}
-                                columns={companyColumns}
-                                />
-                                <Button color="primary" startIcon={<AddIcon />} onClick={() => goCompanyAdd()}>
-                                  レコードを追加
-                                </Button>
+                                data={traders}
+                                columns={traderColumns} />
+                              <Button color="primary" startIcon={<AddIcon />} onClick={() => goCompanyAdd()}>
+                                レコードを追加
+                              </Button>
                             </div>
                           </>
                       }

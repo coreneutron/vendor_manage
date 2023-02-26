@@ -18,6 +18,12 @@ const commonApi = {
                 },
             }
         ),
+    getTraders: () =>
+        axios.get(`${API_URL}/trader`, {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+        }),
     createTrader: (data) =>
         axios.post(
             `${API_URL}/trader`, {data},
@@ -27,6 +33,12 @@ const commonApi = {
                 },
             }
         ),
+    deleteTrader: (id) =>
+        axios.delete(`${API_URL}/trader/${id}`, {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+        }),
     getRouting: () =>
         axios.get(`${API_URL}/routing`, {
             headers: {
