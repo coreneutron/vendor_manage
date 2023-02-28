@@ -9,6 +9,16 @@ const authHeader = {
 };
 
 const commonApi = {
+    uploadCsv: (data) =>
+        axios.post(
+            `${API_URL}/add_trader_from_csv`, data,
+            {
+                headers: {
+                    'content-type': 'multipart/form-data',
+                    Authorization: "Bearer " + localStorage.getItem("token"),
+                },
+            }
+        ),
     checkTrader: (data) =>
         axios.post(
             `${API_URL}/check_trader`, data,
@@ -80,6 +90,19 @@ const commonApi = {
         }),
     getUsers: () =>
         axios.get(`${API_URL}/users`, {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+        }),
+    updateUser: (id,data) =>
+        axios.put(`${API_URL}/users/${id}`, data, 
+        {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+        }),
+    deleteUser: (id) =>
+        axios.delete(`${API_URL}/users/${id}`, {
             headers: {
                 Authorization: "Bearer " + localStorage.getItem("token"),
             },

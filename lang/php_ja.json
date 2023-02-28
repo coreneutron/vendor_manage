@@ -1,12 +1,13 @@
 {
     "Title":"企業リスト",
 
-    "Name":"お名前",
+    "Name":"名前",
     "Password":"パスワード",
     "Password Confirmation":"パスワード確認",
     "Already have an account?":"すでにアカウントをお持ちですか？",
     "Login":"ログイン",
     "SignUp":"新規登録",
+    "Password mismatch":"パスワードが一致しません。",
     
     "Trader Management" : "業者設定",
     "Routing Management" : "経路設定",
@@ -33,12 +34,22 @@
     "Date" : "日付",
     "Routing" : "経路",
     "Company Name" : "社名",
-    "Telephone Number" : "電話番号",
+    "Phone Number" : "電話番号",
     "Prefectures" : "都道府県",
     
     "ID" : "ID",
     "Path Name" : "経路名",
     "Display Order" : "表示順",
 
-    "Csv Add" : "CSV追加"
+    "Csv Add" : "CSV追加",
+    "Login ID" : "ログインID",
+
+    "User Register" : "User Register",
+    "User Update" : "User Update",
+    "User List" : "User List",
+    "User Create" : "User Create",
+    "User Detail" : "User Detail",
+
+    "Column Name" : "項目名",
+    "Column Number": "列数"
 }

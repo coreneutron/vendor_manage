@@ -15,26 +15,26 @@ import { Check } from "@mui/icons-material";
 
 import DataTable from "../../components/DataTable";
 
-const TextMaskCustom = React.forwardRef(function TextMaskCustom(props, ref) {
-  const { onChange, ...other } = props;
-  return (
-    <IMaskInput
-      {...other}
-      mask="#00-000-0000"
-      definitions={{
-        '#': /[1-9]/,
-      }}
-      inputRef={ref}
-      onAccept={(value) => onChange({ target: { name: props.name, value } })}
-      overwrite
-    />
-  );
-});
+// const TextMaskCustom = React.forwardRef(function TextMaskCustom(props, ref) {
+//   const { onChange, ...other } = props;
+//   return (
+//     <IMaskInput
+//       {...other}
+//       mask="#00-000-0000"
+//       definitions={{
+//         '#': /[1-9]/,
+//       }}
+//       inputRef={ref}
+//       onAccept={(value) => onChange({ target: { name: props.name, value } })}
+//       overwrite
+//     />
+//   );
+// });
 
-TextMaskCustom.propTypes = {
-  name: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-};
+// TextMaskCustom.propTypes = {
+//   name: PropTypes.string.isRequired,
+//   onChange: PropTypes.func.isRequired,
+// };
 
 const Create = (props) => {
   const { t, tChoice } = useLaravelReactI18n();
@@ -47,8 +47,8 @@ const Create = (props) => {
     date: '',
     company_name: '',
     routing_id: 0,
-    telephone_number: '123-456-7890',
-    prefecture_id: 0
+    telephone_number: '1234567890',
+    prefecture: ''
   });
 
   const traderColumns = [
@@ -60,14 +60,14 @@ const Create = (props) => {
     {
       field: 'company_name',
       headerName: t('Company Name'),
-      editable: true,
+      editable: false,
       flex: 1,
     },
     {
       field: 'date',
       headerName: t('Date'),
       maxWidth: 200,
-      editable: true,
+      editable: false,
       type: 'date',
       flex: 1,
     }, 
@@ -95,30 +95,23 @@ const Create = (props) => {
     {
       field: 'telephone_number',
       headerName: t('Telephone Number'),
+      editable: false,
       flex: 1,
-      renderCell: () => (
-        <Input
-          value={trader.telephone_number}
-          name="textmask"
-          id="formatted-text-mask-input"
-          inputComponent={TextMaskCustom}
-        />
-      )
     },
     {
-      field: 'prefecture_id',
+      field: 'prefecture',
       headerName: t('Prefectures'),
       renderCell: () => (
         <FormControl variant="standard" fullWidth>
           <Select
             labelId="demo-simple-select-standard-label"
             id="demo-simple-select-standard"
-            name="prefecture_id"
-            value={trader.prefecture_id}
+            name="prefecture"
+            value={trader.prefecture}
           >
           {
             prefecturesList.length > 0 && prefecturesList.map((item, index) => 
-              <MenuItem value={item.id} key={index}>{item.value}</MenuItem>
+              <MenuItem value={item.value} key={index}>{item.value}</MenuItem>
             )
           }
           </Select>
@@ -261,18 +254,18 @@ const Create = (props) => {
               shrink: true,
             }}
             onChange={handleChange}
-            fullWidth
             margin="normal"
+            fullWidth
             />
 
           <FormControl fullWidth margin="normal">
             <InputLabel id="demo-simple-select-label">{ t('Routing') }</InputLabel>
             <Select
+              labelId="demo-simple-select-label"
               id="demo-simple-select"
               name="routing_id"
-              labelId="demo-simple-select-label"
-              value={trader.routing_id}
               label={ t('Routing') }
+              value={trader.routing_id}
               onChange={handleChange}
             >
               <MenuItem value={0} key="none">None</MenuItem>
@@ -285,39 +278,38 @@ const Create = (props) => {
           </FormControl>
           
           <TextField 
-            id="fullWidth" 
+            id="fullWidth"
             name="company_name"
-            fullWidth 
             label={ t('Company Name') } 
-            margin="normal"
+            value={trader.company_name}
             onChange={handleChange}
+            margin="normal"
+            fullWidth 
             />
 
-          <div style={{display:'flex', justifyContent: 'space-around', alignItems: 'center', marginTop: '10px', marginBottom: '10px'}}>
-            <div>{ t('Telephone Number') } :</div>
-            <Input
-              id="formatted-text-mask-input"
-              name="telephone_number"
-              variant="filled"
-              inputComponent={TextMaskCustom}
-              value={trader.telephone_number}
-              onChange={handleChange}
+          <TextField 
+            id="fullWidth" 
+            name="telephone_number"
+            label={ t('Phone Number') } 
+            value={trader.telephone_number}
+            onChange={handleChange}
+            margin="normal"
+            fullWidth 
             />
-          </div>
           
           <FormControl fullWidth margin="normal">
             <InputLabel id="demo-simple-select-label">{ t('Prefectures') }</InputLabel>
             <Select
               labelId="demo-simple-select-label"
               id="demo-simple-select"
-              value={trader.prefecture_id}
+              name="prefecture"
               label="Prefecture"
-              name="prefecture_id"
+              value={trader.prefecture}
               onChange={handleChange}
             >
               {
                 prefecturesList.length > 0 && prefecturesList.map((item, index) => 
-                  <MenuItem value={item.id} key={index}>{item.value}</MenuItem>
+                  <MenuItem value={item.value} key={index}>{item.value}</MenuItem>
                 )
               }
             </Select>

@@ -2,28 +2,36 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
 
-import DataTable from "../../components/DataTable";
-
-import './Users.scss';
-
-import {
-  startAction,
-  endAction,
-  showToast
-} from '../../actions/common'
-import { logout } from "../../actions/auth";
+import { Button, FormControl, Input, MenuItem, Select }  from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import { startAction, endAction, showToast } from '../../actions/common'
+import { GridActionsCellItem } from '@mui/x-data-grid';
 import agent from '../../api/'
+import { logout } from "../../actions/auth";
 
 import { useLaravelReactI18n } from 'laravel-react-i18n'
+
+import DataTable from "../../components/DataTable";
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css'
+import {BsExclamationCircle} from "react-icons/bs"
+import './Users.scss';
 
 const Users = () => {
   const { t, tChoice } = useLaravelReactI18n();
 
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const [page, setPage] = useState('list')
-  const [users, setUsers] = useState([])
+  const [page, setPage] = useState('list');
+  const [users, setUsers] = useState([]);
+  const [cardTitle, setCardTitle] = useState(t('User List'));
+  const [signupData, setSignupData] = useState({first_name: '', email: '', password: '', password_confirmation: ''})
+  const [editData, setEditData] = useState({id:'', first_name: '', email: '', password: '', password_confirmation: ''})
 
   useEffect(() => {
     getUsersData()
@@ -44,12 +52,6 @@ const Users = () => {
         return params.row.first_name;
       },
     }, 
-    // {
-    //   field: 'uid',
-    //   headerName: t('User ID'),
-    //   editable: false,
-    //   flex: 1,
-    // },
     {
       field: 'email',
       headerName: t('Email'),
@@ -68,7 +70,8 @@ const Users = () => {
         const valueFormatted = params.value == 1 ? '管理者' : 'ユーザー';
         return valueFormatted;
       },
-    }, {
+    }, 
+    {
       field: 'disabled',
       headerName: t('Status'),
       flex: 1,
@@ -82,10 +85,35 @@ const Users = () => {
           }
         } else return <div></div>;
       },
-    }
+    },
+    {
+      field: 'actions',
+      type: 'actions',
+      headerName: '操作',
+      minWidth: 100,
+      cellClassName: 'actions',
+      renderCell: ( params ) => {
+        if(params.row.role != 1){
+          return [
+            <GridActionsCellItem
+              icon={<RemoveRedEyeIcon />}
+              label="Edit"
+              className="table_inline_btn"
+              onClick={()=>handleUserEdit(params.row)}
+              color="inherit"
+            />,
+            <GridActionsCellItem
+              icon={<DeleteIcon />}
+              label="Delete"
+              onClick={()=>handleDeleteClick(params.row.id)}
+              color="inherit"
+            />
+          ];
+        } else return <div></div>;
+      },
+    },
   ]
   
-
   async function getUsersData() {
       dispatch(startAction())
       try {
@@ -122,27 +150,128 @@ const Users = () => {
 		dispatch(endAction())
   }
 
+  const createUser = () => {
+    setPage('add')
+    setCardTitle(t('User Create'))
+  }
+
+  const submitRegister = async () => {
+    if(signupData.first_name == '' || signupData.email == '' || signupData.password == '' || signupData.password_confirmation ==''){
+      dispatch(showToast('error', t('Please input all filed!')))
+      return ;
+    }
+    if(signupData.password != signupData.password_confirmation){
+      dispatch(showToast('error', t('Password mismatch')))
+      return ;
+    } else if(signupData.password.length < 6) {
+      dispatch(showToast('error', t('Password Length Error!')))
+      return ;
+    }
+    dispatch(startAction())
+      try {
+        let res = await agent.auth.register(signupData.first_name, signupData.email, signupData.password, signupData.password_confirmation)
+        dispatch(endAction())
+        if (res.data.success) {
+          setPage('list');
+          setCardTitle(t('User List'))
+          getUsersData();
+          dispatch(showToast('success', res.data.message))
+        }
+      } catch (error) {
+        if (error.response != undefined) {
+          if (error.response.status >= 400 && error.response.status <= 415) {
+            dispatch(endAction())
+            dispatch(showToast('error', error.response.data.message))
+          }
+        }
+      }
+  } 
+
+  const clickBackBtn = () => {
+    setPage('list')
+    setCardTitle(t('User List'))
+  }
+
+  const handleUserEdit = (data) => {
+    setEditData({ id: data.id, first_name:data.first_name, email: data.email })
+    setPage('edit')
+    setCardTitle(t('User Detail'))
+  }
+
+  const submitUpdate = async () => {
+    if(editData.first_name == '' || editData.email == '' || editData.password == '' || editData.password_confirmation == ''){
+      dispatch(showToast('error', t('Please input all filed!')))
+      return ;
+    }
+    if(editData.password && editData.password != editData.password_confirmation){
+      dispatch(showToast('error', t('Password mismatch')))
+      return ;
+    } else if(editData.password && editData.password.length < 6) {
+      dispatch(showToast('error', t('Password Length Error!')))
+      return ;
+    }
+    dispatch(startAction())
+    try {
+      const res = await agent.common.updateUser(editData.id, editData);
+      if (res.data.success) {
+        getUsersData();
+        dispatch(showToast('success', 'Successfully updated!'))
+      }
+      dispatch(endAction())
+    } catch (error) {
+      if (error.response.status >= 400 && error.response.status <= 500) {
+        dispatch(endAction())
+        dispatch(showToast('error', error.response.data.message))
+        if (error.response.data.message == 'Unauthorized') {
+          localStorage.removeItem('token')
+          dispatch(logout())
+          navigate('/')
+        }
+      }
+    }
+  }
+  
+  const handleDeleteClick= (id) => {
+    confirmAlert({
+      customUI: ({ onClose }) => {
+        return (
+          <div className='custom_alert'>
+            <h1><BsExclamationCircle /></h1>
+            <p>本当に削除しますか？</p>
+            <div className="btn_group">
+              <button type="button" className="btn btn-secondary" onClick={onClose}>いいえ</button>
+              <button type="button" className="btn btn-success" onClick={() => {onClose(); handleUserDelete(id);}}>はい</button>
+            </div>
+          </div>
+        );
+      }
+    });
+  }
+
+  const handleUserDelete = async(id) => {
+    dispatch(startAction())
+    try {
+      const res = await agent.common.deleteUser(id);
+      if (res.data.success) {
+        getUsersData();
+        dispatch(showToast('success', 'Successfully deleted!'))
+      }
+      dispatch(endAction())
+    } catch (error) {
+      if (error.response.status >= 400 && error.response.status <= 500) {
+        dispatch(endAction())
+        dispatch(showToast('error', error.response.data.message))
+        if (error.response.data.message == 'Unauthorized') {
+          localStorage.removeItem('token')
+          dispatch(logout())
+          navigate('/')
+        }
+      }
+    }
+  }
+
   return (
     <>
-      <div className="page-header">
-        <div className="page-block">
-          <div className="row align-items-center">
-            {/* <div className="col-md-12">
-              <div className="page-header-title">
-                <h5 className="m-b-10">{ t('User List') } </h5>
-              </div>
-              <ul className="breadcrumb">
-                <li className="breadcrumb-item">
-                  <a href="/"><i className="feather icon-home"></i></a>
-                </li>
-                <li className="breadcrumb-item">
-                  <a href="/users">{ t('User Management') }</a>
-                </li>
-              </ul>
-            </div> */}
-          </div>
-        </div>
-      </div>
       <div className="main-body">
         <div className="page-wrapper">
           <div className="row">
@@ -151,7 +280,7 @@ const Users = () => {
                 page == 'list' &&
                   <div className="card">
                     <div className="card-header">
-                      <h5 className="card-title">{ t('List') }</h5>
+                      <h5 className="card-title">{cardTitle}</h5>
                     </div>
                     <div className="card-body">
                       <div className="row">
@@ -161,7 +290,7 @@ const Users = () => {
                               data={users}
                               columns={userColumns}
                             />
-                            {/* <button type="button" className="btn btn-primary table_btn" onClick={() => goCompanyAdd()}>{ t('Add') }</button> */}
+                            <Button color="primary" startIcon={<AddIcon />} onClick={() => createUser()}>新規追加</Button>
                           </div>
                         </div>
                       </div>
@@ -170,9 +299,62 @@ const Users = () => {
               }
               {
                 page == 'add' &&
-                  <></>
+                  <>
+                  <div className="card">
+                    <div className="card-header">
+                      <h5 className="card-title">{cardTitle}</h5>
+                    </div>
+                    <div className="card-body text-center">
+                      <div className="input-group mb-3">
+                        <input type="text" className="form-control" placeholder={ t('Name') } onChange={(e) => setSignupData((old) => {return({...old, first_name: e.target.value})})} />
+                      </div>
+                      <div className="input-group mb-3">
+                        <input type="text" className="form-control" placeholder={ t('Login ID') } onChange={(e) => setSignupData((old) => {return({...old, email: e.target.value})})} />
+                      </div>
+                      <div className="input-group mb-4">
+                        <input type="password" className="form-control" placeholder={ t('Password') } onChange={(e) => setSignupData((old) => {return({...old, password: e.target.value})})} />
+                      </div>
+                      <div className="input-group mb-4">
+                        <input type="password" className="form-control" placeholder={ t('Password Confirmation') } onChange={(e) => setSignupData((old) => {return({...old, password_confirmation: e.target.value})})} />
+                      </div>
+                      <Button variant="outlined" onClick={() => submitRegister()}>{ t('User Register') }</Button>
+                    </div>
+                    <div>
+                      <Button color="primary" startIcon={<ArrowBackIcon />} onClick={() => clickBackBtn()}>
+                        { t('Back') }
+                      </Button>
+                    </div>
+                  </div>
+                  </>
               }
-              
+              {
+                page == 'edit' &&
+                  <>
+                    <div className="card">
+                      <div className="card-header">
+                        <h5 className="card-title">{cardTitle}</h5>
+                      </div>
+                      <div className="card-body text-center">
+                        <div className="input-group mb-3">
+                          <input type="text" className="form-control" placeholder={ t('Name') } value={editData.first_name} onChange={(e) => setEditData((old) => {return({...old, first_name: e.target.value})})} />
+                        </div>
+                        <div className="input-group mb-3">
+                          <input type="text" className="form-control" placeholder={ t('Login ID') } value={editData.email} onChange={(e) => setEditData((old) => {return({...old, email: e.target.value})})} />
+                        </div>
+                        <div className="input-group mb-4">
+                          <input type="password" className="form-control" placeholder={ t('Password') } value={editData.password} onChange={(e) => setEditData((old) => {return({...old, password: e.target.value})})} />
+                        </div>
+                        <div className="input-group mb-4">
+                          <input type="password" className="form-control" placeholder={ t('Password Confirmation') } value={editData.password_confirmation} onChange={(e) => setEditData((old) => {return({...old, password_confirmation: e.target.value})})} />
+                        </div>
+                        <Button variant="outlined" onClick={() => submitUpdate()}>{ t('User Update') }</Button>
+                      </div>
+                      <div>
+                        <Button color="primary" startIcon={<ArrowBackIcon />} onClick={() => clickBackBtn()}>{ t('Back') }</Button>
+                      </div>
+                    </div>
+                  </>
+              }
             </div>
           </div>
         </div>

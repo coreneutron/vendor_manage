@@ -101,44 +101,44 @@ const Login = () => {
                   </div>
                   <h3 className="mb-4">{ t('Login') }</h3>
                   <div className="input-group mb-3">
-                    <input type="email" className="form-control" placeholder={ t('Email') } value={loginData.email} onChange={(e) => setLoginData((old) => {return({...old, email: e.target.value})})} onKeyPress={(e) => { if (e.keyCode === 13 || e.charCode === 13) submitLogin() }}/>
+                    <input type="text" className="form-control" placeholder={ t('Email') } value={loginData.email} onChange={(e) => setLoginData((old) => {return({...old, email: e.target.value})})} onKeyPress={(e) => { if (e.keyCode === 13 || e.charCode === 13) submitLogin() }}/>
                   </div>
                   <div className="input-group mb-4">
                     <input type="password" className="form-control" placeholder={ t('Password') } value={loginData.password} onChange={(e) => setLoginData((old) => {return({...old, password: e.target.value})})} onKeyPress={(e) => { if (e.keyCode === 13 || e.charCode === 13) submitLogin() }}/>
                   </div>
                   <button className="btn btn-primary shadow-2 mb-4" onClick={() => submitLogin()}>{ t('Login') }</button>
                   {/* <p className="mb-2 text-muted">Forgot password? <NavLink to="/auth/reset-password-1">Reset</NavLink></p> */}
-                  <p className="mb-0 text-muted"><a onClick={() => setDisplayState('signup')}>{ t('SignUp') }</a></p>
+                  {/* <p className="mb-0 text-muted"><a onClick={() => setDisplayState('signup')}>{ t('SignUp') }</a></p> */}
                 </div>
               </div>
           }
           {
-            displayState === 'signup' &&
-              <div className="card">
-                <div className="card-body text-center">
-                  <div className="mb-4">
-                    <i className="feather icon-user-plus auth-icon"/>
-                  </div>
-                  <h3 className="mb-4">{ t('SignUp') }</h3>
-                  <div className="input-group mb-3">
-                    <input type="text" className="form-control" placeholder={ t('Name') } onChange={(e) => setSignupData((old) => {return({...old, first_name: e.target.value})})} onKeyPress={(e) => { if (e.keyCode === 13 || e.charCode === 13) submitRegister() }}/>
-                  </div>
-                  {/* <div className="input-group mb-3">
-                    <input type="text" className="form-control" placeholder="Last Name" onChange={(e) => setSignupData((old) => {return({...old, last_name: e.target.value})})} onKeyPress={(e) => { if (e.keyCode === 13 || e.charCode === 13) submitRegister() }}/>
-                  </div> */}
-                  <div className="input-group mb-3">
-                    <input type="email" className="form-control" placeholder={ t('Email') } onChange={(e) => setSignupData((old) => {return({...old, email: e.target.value})})} onKeyPress={(e) => { if (e.keyCode === 13 || e.charCode === 13) submitRegister() }}/>
-                  </div>
-                  <div className="input-group mb-4">
-                    <input type="password" className="form-control" placeholder={ t('Password') } onChange={(e) => setSignupData((old) => {return({...old, password: e.target.value})})} onKeyPress={(e) => { if (e.keyCode === 13 || e.charCode === 13) submitRegister() }}/>
-                  </div>
-                  <div className="input-group mb-4">
-                    <input type="password" className="form-control" placeholder={ t('Password Confirmation') } onChange={(e) => setSignupData((old) => {return({...old, password_confirmation: e.target.value})})} onKeyPress={(e) => { if (e.keyCode === 13 || e.charCode === 13) submitRegister() }}/>
-                  </div>
-                  <button className="btn btn-primary shadow-2 mb-4" onClick={() => submitRegister()}>{ t('SignUp') }</button>
-                  <p className="mb-0 text-muted">{ t('Already have an account?') }&nbsp;&nbsp;<a onClick={() => setDisplayState('login')}>{ t('Login') }</a></p>
-                </div>
-              </div>
+            // displayState === 'signup' &&
+            //   <div className="card">
+            //     <div className="card-body text-center">
+            //       <div className="mb-4">
+            //         <i className="feather icon-user-plus auth-icon"/>
+            //       </div>
+            //       <h3 className="mb-4">{ t('SignUp') }</h3>
+            //       <div className="input-group mb-3">
+            //         <input type="text" className="form-control" placeholder={ t('Name') } onChange={(e) => setSignupData((old) => {return({...old, first_name: e.target.value})})} onKeyPress={(e) => { if (e.keyCode === 13 || e.charCode === 13) submitRegister() }}/>
+            //       </div>
+            //       {/* <div className="input-group mb-3">
+            //         <input type="text" className="form-control" placeholder="Last Name" onChange={(e) => setSignupData((old) => {return({...old, last_name: e.target.value})})} onKeyPress={(e) => { if (e.keyCode === 13 || e.charCode === 13) submitRegister() }}/>
+            //       </div> */}
+            //       <div className="input-group mb-3">
+            //         <input type="email" className="form-control" placeholder={ t('Email') } onChange={(e) => setSignupData((old) => {return({...old, email: e.target.value})})} onKeyPress={(e) => { if (e.keyCode === 13 || e.charCode === 13) submitRegister() }}/>
+            //       </div>
+            //       <div className="input-group mb-4">
+            //         <input type="password" className="form-control" placeholder={ t('Password') } onChange={(e) => setSignupData((old) => {return({...old, password: e.target.value})})} onKeyPress={(e) => { if (e.keyCode === 13 || e.charCode === 13) submitRegister() }}/>
+            //       </div>
+            //       <div className="input-group mb-4">
+            //         <input type="password" className="form-control" placeholder={ t('Password Confirmation') } onChange={(e) => setSignupData((old) => {return({...old, password_confirmation: e.target.value})})} onKeyPress={(e) => { if (e.keyCode === 13 || e.charCode === 13) submitRegister() }}/>
+            //       </div>
+            //       <button className="btn btn-primary shadow-2 mb-4" onClick={() => submitRegister()}>{ t('SignUp') }</button>
+            //       <p className="mb-0 text-muted">{ t('Already have an account?') }&nbsp;&nbsp;<a onClick={() => setDisplayState('login')}>{ t('Login') }</a></p>
+            //     </div>
+            //   </div>
           }
         </div>
       </div>

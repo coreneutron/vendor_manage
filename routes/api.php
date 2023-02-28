@@ -34,8 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('routing', RoutingController::class);
     Route::apiResource('trader', TraderController::class);
     Route::post('check_trader', [TraderController::class, 'check']);
-
-    Route::post('companies', [CompanyController::class, 'index']);
+    Route::post('add_trader_from_csv', [TraderController::class, 'addFromCsv']);
 });
 
 
