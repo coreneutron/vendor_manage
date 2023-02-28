@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
 import { IMaskInput } from 'react-imask';
-import { Button, FormControl, Input, MenuItem, Select }  from '@mui/material';
+import { Button, FormControl, Input, InputLabel, TextField, MenuItem, Select }  from '@mui/material';
 import { GridActionsCellItem } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -21,7 +21,7 @@ import { startAction, endAction, showToast } from '../../actions/common'
 import agent from '../../api/'
 import { logout } from "../../actions/auth";
 
-import DataTable from "../../components/DataTable";
+import PaginationDataTable from "../../components/PaginationDataTable";
 import Create from './create';
 import { prefecturesList } from '../../utils/prefectures';
 
@@ -29,7 +29,7 @@ const Traders = () => {
   const { t, tChoice } = useLaravelReactI18n();
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const [page, setPage] = useState('list');
+  const [pageType, setPageType] = useState('list');
   const [cardTitle, setCardTitle] = useState(t('Trader List'));
   const [routing, setRouting] = useState([]);
   const [traders, setTraders] = useState([]);
@@ -40,6 +40,19 @@ const Traders = () => {
     routing_id: 0,
     telephone_number: '123-456-7890',
     prefecture_id: 0
+  });
+
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [totalCount, setTotalCount]=useState(0);
+  // search params
+  const [searchParams, setSearchParams] = useState({
+    site_type : '',
+    company_name : '',
+    routing_id : 0,
+    prefecture : '',
+    mobilephone_number : '',
+    telephone_number : ''
   });
 
   const traderColumns = [
@@ -71,10 +84,11 @@ const Traders = () => {
           <Select
             labelId="demo-simple-select-standard-label"
             id="demo-simple-select-standard"
-            name="routing"
+            name="routing_id"
             value={params.row.routing_id}
             disabled
           >
+            <MenuItem value={0} key={'none'}>None</MenuItem>
           {
             routing.length > 0 && routing.map((item, index) => 
               <MenuItem value={item.id} key={index}>{item.path_name}</MenuItem>
@@ -119,13 +133,6 @@ const Traders = () => {
       cellClassName: 'actions',
       getActions: ( params ) => {
         return [
-          // <GridActionsCellItem
-          //   icon={<EditIcon />}
-          //   label="Edit"
-          //   className="table_inline_btn"
-          //   onClick={()=>handleTraderEdit(params.row)}
-          //   color="inherit"
-          // />,
           <GridActionsCellItem
             icon={<DeleteIcon />}
             label="Delete"
@@ -141,6 +148,10 @@ const Traders = () => {
     getRouting();
     getTraders()
   }, [])
+
+  useEffect(() => {
+    getTraders()
+  }, [searchParams, page, rowsPerPage])
 
   const handleUploadCsv = () => {
     fileInputField.current.click();
@@ -198,11 +209,18 @@ const Traders = () => {
   }
 
   const getTraders = async() => {
+    console.log(searchParams);
+    searchParams.page = Number(page) + 1;
+    searchParams.rowsPerPage = rowsPerPage;
+   
     dispatch(startAction())
     try {
-      const res = await agent.common.getTraders();
+      const res = await agent.common.getTraders(searchParams);
       if (res.data.success) {
+        console.log(res.data.data.data);
+        console.log(res.data.data.total);
         setTraders([...res.data.data.data])
+        setTotalCount(res.data.data.total)
       }
       dispatch(endAction())
     } catch (error) {
@@ -219,7 +237,7 @@ const Traders = () => {
   }
 
   const createTrader = () => {
-    setPage('add')
+    setPageType('add')
     setCardTitle(t('Trader Create'))
   }
 
@@ -262,11 +280,22 @@ const Traders = () => {
     }
   }
 
+  const handleChangePage = (newPage) => {
+    setPage(newPage);
+  };
+  
+  const handlePageSizeChange = (value) => {
+    setRowsPerPage(value);
+  };
+
+  const handleChange = (event) => {
+    setSearchParams({...searchParams, [event.target.name]: event.target.value});
+  };
+
   const clickCancelBtn = () => {
-    setPage('list')
+    setPageType('list')
     setCardTitle(t('Trader List'))
   }
-
   return (
     <>
       <div className="main-body">
@@ -283,16 +312,75 @@ const Traders = () => {
                     </div>
                   </div>
                 </div>
+
                 <div className="card-body">
+                  <div className="page-header-title">
+                    <FormControl sx={{ m: 1, minWidth: 250 }}>
+                      <TextField id="outlined-basic" label="Site Type" name="site_type" variant="outlined" value={searchParams.site_type} onChange={handleChange} />
+                    </FormControl>
+                    <FormControl sx={{ m: 1, minWidth: 250 }}>
+                      <TextField id="outlined-basic" label="Company Name" name="company_name" variant="outlined" value={searchParams.company_name} onChange={handleChange} />
+                    </FormControl>
+                    <FormControl sx={{ m: 1, minWidth: 250 }}>
+                      <InputLabel id="demo-simple-select-label">Routing</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        name="routing_id"
+                        value={searchParams.routing_id}
+                        label="都道府県"
+                        onChange={handleChange}
+                      >
+                        <MenuItem value={0} key={'all'}>All</MenuItem>
+                        {routing && routing.map((item, index )=> {
+                            return (
+                              <MenuItem value={item.id} key={index}>{item.path_name}</MenuItem>
+                            )
+                          })
+                        }
+                      </Select>
+                    </FormControl>
+                    <FormControl sx={{ m: 1, minWidth: 250 }}>
+                      <InputLabel id="demo-simple-select-label">Prefecture</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        name="prefecture"
+                        value={searchParams.prefecture}
+                        label="都道府県"
+                        onChange={handleChange}
+                      >
+                        {prefecturesList.map((item, index )=> {
+                            return (
+                              <MenuItem value={item.value} key={index}>{item.value}</MenuItem>
+                            )
+                          })
+                        }
+                      </Select>
+                    </FormControl>
+                    <FormControl sx={{ m: 1, minWidth: 250 }}>
+                      <TextField id="outlined-basic" label="MobilePhone Number" name="mobilephone_number" variant="outlined" value={searchParams.mobilephone_number} onChange={handleChange} />
+                    </FormControl>
+                    <FormControl sx={{ m: 1, minWidth: 250 }}>
+                      <TextField id="outlined-basic" label="Telephone Number" name="telephone_number" variant="outlined" value={searchParams.telephone_number} onChange={handleChange} />
+                    </FormControl>
+                  </div>
                   <div className="row">
                     <div className="col-md-12">
                       {
-                        page == 'list' && 
+                        pageType == 'list' && 
                           <>
                             <div className="table_container">
-                              <DataTable 
+                              <PaginationDataTable 
                                 data={traders}
-                                columns={traderColumns} />
+                                columns={traderColumns}
+                                paginationMode='server'
+                                pageSize={rowsPerPage}
+                                rowsPerPageOptions={[5, 10, 25, 100]}
+                                totalCount={totalCount}
+                                onPageSizeChange={handlePageSizeChange}
+                                onPageChange={handleChangePage}
+                                />
                               <Button color="primary" startIcon={<AddIcon />} onClick={() => createTrader()}>
                                 レコードを追加
                               </Button>
@@ -300,10 +388,7 @@ const Traders = () => {
                           </>
                       }
                       {
-                        page == 'add' && <Create clickCancelBtn={()=>clickCancelBtn()} />
-                      }
-                      {
-                        page == 'edit' && <Create clickCancelBtn={()=>clickCancelBtn()} />
+                        pageType == 'add' && <Create clickCancelBtn={()=>clickCancelBtn()} />
                       }
                     </div>
                   </div>

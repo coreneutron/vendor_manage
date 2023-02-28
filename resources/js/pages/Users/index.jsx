@@ -115,99 +115,98 @@ const Users = () => {
   ]
   
   async function getUsersData() {
-      dispatch(startAction())
-      try {
-        const resUsers = await agent.common.getUsers()
-        console.log('resUsers data=', resUsers.data.data)
-        if (resUsers.data.success) {
-          setUsers([...resUsers.data.data])
-        }
-        dispatch(endAction())
-      } catch (error) {
-        if (error.response.status >= 400 && error.response.status <= 500) {
-          dispatch(endAction())
-          dispatch(showToast('error', error.response.data.message))
-          if (error.response.data.message == 'Unauthorized') {
-            localStorage.removeItem('token')
-            dispatch(logout())
-            navigate('/')
-          }
+    dispatch(startAction())
+    try {
+      const resUsers = await agent.common.getUsers();
+      if (resUsers.data.success) {
+        setUsers([...resUsers.data.data]);
+      }
+      dispatch(endAction());
+    } catch (error) {
+      if (error.response.status >= 400 && error.response.status <= 500) {
+        dispatch(endAction());
+        dispatch(showToast('error', error.response.data.message));
+        if (error.response.data.message == 'Unauthorized') {
+          localStorage.removeItem('token');
+          dispatch(logout());
+          navigate('/');
         }
       }
     }
+  }
 
   const updateAccountStatus = async(user_id, disabled) => {
-    dispatch(startAction())
+    dispatch(startAction());
 		const res = await agent.common.updateAccountStatus(
       user_id, 
       disabled
-    )
+    );
 		if (res.data.success) {
-      dispatch(showToast('success', res.data.message))
-      getUsersData()
-      setPage('list')
-    } else dispatch(showToast('error', res.data.message))
-		dispatch(endAction())
+      dispatch(showToast('success', res.data.message));
+      getUsersData();
+      setPage('list');
+    } else dispatch(showToast('error', res.data.message));
+		dispatch(endAction());
   }
 
   const createUser = () => {
-    setPage('add')
-    setCardTitle(t('User Create'))
+    setPage('add');
+    setCardTitle(t('User Create'));
   }
 
   const submitRegister = async () => {
     if(signupData.first_name == '' || signupData.email == '' || signupData.password == '' || signupData.password_confirmation ==''){
-      dispatch(showToast('error', t('Please input all filed!')))
+      dispatch(showToast('error', t('Please input all filed!')));
       return ;
     }
     if(signupData.password != signupData.password_confirmation){
-      dispatch(showToast('error', t('Password mismatch')))
+      dispatch(showToast('error', t('Password mismatch')));
       return ;
     } else if(signupData.password.length < 6) {
-      dispatch(showToast('error', t('Password Length Error!')))
+      dispatch(showToast('error', t('Password Length Error!')));
       return ;
     }
-    dispatch(startAction())
+    dispatch(startAction());
       try {
         let res = await agent.auth.register(signupData.first_name, signupData.email, signupData.password, signupData.password_confirmation)
         dispatch(endAction())
         if (res.data.success) {
           setPage('list');
-          setCardTitle(t('User List'))
+          setCardTitle(t('User List'));
           getUsersData();
-          dispatch(showToast('success', res.data.message))
+          dispatch(showToast('success', res.data.message));
         }
       } catch (error) {
         if (error.response != undefined) {
           if (error.response.status >= 400 && error.response.status <= 415) {
-            dispatch(endAction())
-            dispatch(showToast('error', error.response.data.message))
+            dispatch(endAction());
+            dispatch(showToast('error', error.response.data.message));
           }
         }
       }
   } 
 
   const clickBackBtn = () => {
-    setPage('list')
-    setCardTitle(t('User List'))
+    setPage('list');
+    setCardTitle(t('User List'));
   }
 
   const handleUserEdit = (data) => {
-    setEditData({ id: data.id, first_name:data.first_name, email: data.email })
-    setPage('edit')
-    setCardTitle(t('User Detail'))
+    setEditData({ id: data.id, first_name:data.first_name, email: data.email });
+    setPage('edit');
+    setCardTitle(t('User Detail'));
   }
 
   const submitUpdate = async () => {
     if(editData.first_name == '' || editData.email == '' || editData.password == '' || editData.password_confirmation == ''){
-      dispatch(showToast('error', t('Please input all filed!')))
+      dispatch(showToast('error', t('Please input all filed!')));
       return ;
     }
     if(editData.password && editData.password != editData.password_confirmation){
-      dispatch(showToast('error', t('Password mismatch')))
+      dispatch(showToast('error', t('Password mismatch')));
       return ;
     } else if(editData.password && editData.password.length < 6) {
-      dispatch(showToast('error', t('Password Length Error!')))
+      dispatch(showToast('error', t('Password Length Error!')));
       return ;
     }
     dispatch(startAction())
@@ -215,17 +214,17 @@ const Users = () => {
       const res = await agent.common.updateUser(editData.id, editData);
       if (res.data.success) {
         getUsersData();
-        dispatch(showToast('success', 'Successfully updated!'))
+        dispatch(showToast('success', 'Successfully updated!'));
       }
       dispatch(endAction())
     } catch (error) {
       if (error.response.status >= 400 && error.response.status <= 500) {
-        dispatch(endAction())
-        dispatch(showToast('error', error.response.data.message))
+        dispatch(endAction());
+        dispatch(showToast('error', error.response.data.message));
         if (error.response.data.message == 'Unauthorized') {
-          localStorage.removeItem('token')
-          dispatch(logout())
-          navigate('/')
+          localStorage.removeItem('token');
+          dispatch(logout());
+          navigate('/');
         }
       }
     }
@@ -254,17 +253,17 @@ const Users = () => {
       const res = await agent.common.deleteUser(id);
       if (res.data.success) {
         getUsersData();
-        dispatch(showToast('success', 'Successfully deleted!'))
+        dispatch(showToast('success', 'Successfully deleted!'));
       }
-      dispatch(endAction())
+      dispatch(endAction());
     } catch (error) {
       if (error.response.status >= 400 && error.response.status <= 500) {
-        dispatch(endAction())
-        dispatch(showToast('error', error.response.data.message))
+        dispatch(endAction());
+        dispatch(showToast('error', error.response.data.message));
         if (error.response.data.message == 'Unauthorized') {
-          localStorage.removeItem('token')
-          dispatch(logout())
-          navigate('/')
+          localStorage.removeItem('token');
+          dispatch(logout());
+          navigate('/');
         }
       }
     }

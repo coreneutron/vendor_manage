@@ -28,8 +28,8 @@ const commonApi = {
                 },
             }
         ),
-    getTraders: () =>
-        axios.get(`${API_URL}/trader`, {
+    getTraders: (params) =>
+        axios.post(`${API_URL}/all_traders`, params,  {
             headers: {
                 Authorization: "Bearer " + localStorage.getItem("token"),
             },
@@ -49,13 +49,27 @@ const commonApi = {
                 Authorization: "Bearer " + localStorage.getItem("token"),
             },
         }),
+    getClipboard: () =>
+        axios.get(`${API_URL}/clipboard`, {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+        }),
+    updateClipboard: (id, data) =>
+        axios.put(
+            `${API_URL}/clipboard/${id}`, data,
+            {
+                headers: {
+                    Authorization: "Bearer " + localStorage.getItem("token"),
+                },
+            }
+        ),
     getRouting: () =>
         axios.get(`${API_URL}/routing`, {
             headers: {
                 Authorization: "Bearer " + localStorage.getItem("token"),
             },
         }),
-
     addRouting: (data) =>
         axios.post(
             `${API_URL}/routing`,
@@ -68,7 +82,6 @@ const commonApi = {
                 },
             }
         ),
-
     editRouting: (id, data) =>
         axios.put(
             `${API_URL}/routing/${id}`,
@@ -81,7 +94,6 @@ const commonApi = {
                 },
             }
         ),
-
     deleteRouting: (id) =>
         axios.delete(`${API_URL}/routing/${id}`, {
             headers: {
@@ -107,7 +119,6 @@ const commonApi = {
                 Authorization: "Bearer " + localStorage.getItem("token"),
             },
         }),
-
     updateAccountStatus: (id, disabled) =>
         axios.put(
             `${API_URL}/users/${id}`,

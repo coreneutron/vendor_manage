@@ -14,13 +14,42 @@ class TraderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $traders = Trader::paginate(100);
-        return response()->json([
-            'success' => true,
-            'data' => $traders
-        ]);
+        if($request){
+            $rows_per_page = $request-> rowsPerPage;
+            $page = $request -> page;
+
+            $site_type = $request->site_type;
+            $company_name = $request->company_name;
+            $routing_id = $request->routing_id;
+            $prefecture = $request->prefecture;
+            $mobilephone_number = $request->mobilephone_number;
+            $telephone_number = $request->telephone_number;
+            
+            $traders = Trader::where(function ($query) use ($site_type, $company_name, $routing_id, $prefecture, $mobilephone_number, $telephone_number, $page, $rows_per_page) {
+                if($site_type)
+                   $query->where('site_type', 'LIKE', '%'.$site_type.'%');
+                if($company_name)
+                   $query->where('company_name', 'LIKE', '%'.$company_name.'%');
+                if($routing_id && $routing_id != 0 )
+                   $query->where('routing_id', $routing_id);
+                if($prefecture && $prefecture != 'All')
+                    $query->where('prefecture', $prefecture);
+                if($mobilephone_number)
+                    $query->where('mobilephone_number', 'LIKE', '%'.$mobilephone_number.'%');
+                if($telephone_number)
+                    $query->where('telephone_number', 'LIKE', '%'.$telephone_number.'%');
+                if($page)
+                    $query->skip($rows_per_page * $page);
+            })->paginate($rows_per_page);
+
+            return response()->json([
+                'success' => true,
+                'data' => $traders
+            ]);
+        
+        }
     }
 
     /**

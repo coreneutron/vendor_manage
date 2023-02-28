@@ -6,6 +6,7 @@ use App\Http\Controllers\UserRoleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoutingController;
 use App\Http\Controllers\TraderController;
+use App\Http\Controllers\ClipboardController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +34,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('user-role', UserRoleController::class);
     Route::apiResource('routing', RoutingController::class);
     Route::apiResource('trader', TraderController::class);
+    Route::post('all_traders', [TraderController::class, 'index']);
+    Route::apiResource('clipboard', ClipboardController::class);
     Route::post('check_trader', [TraderController::class, 'check']);
     Route::post('add_trader_from_csv', [TraderController::class, 'addFromCsv']);
 });
