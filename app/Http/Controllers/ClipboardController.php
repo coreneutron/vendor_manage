@@ -75,7 +75,7 @@ class ClipboardController extends Controller
     {
         $count = Clipboard::where('column_number', $request->column_number)->count();
         if($count > 0)
-            return response()->json([ 'success' => false,  'message' => 'column already exists!'  ]);
+            return response()->json([ 'success' => false,  'message' => 'この列は既に存在します。'  ]);
         else {
             $clipboard->update($request->all());
             return response()->json([

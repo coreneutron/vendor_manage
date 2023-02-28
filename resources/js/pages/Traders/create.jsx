@@ -2,39 +2,18 @@ import React, { useState, useEffect, useRef } from "react";
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
-import { IMaskInput } from 'react-imask';
 import {Button, Box, Stepper, Step, StepLabel, StepContent, Paper, Typography, FormControl, Input, InputLabel, MenuItem, Select, TextField, CircularProgress }  from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { startAction, endAction, showToast } from '../../actions/common'
 import agent from '../../api/'
 import { logout } from "../../actions/auth";
 import { useLaravelReactI18n } from 'laravel-react-i18n'
 import { prefecturesList } from '../../utils/prefectures';
 import { Check } from "@mui/icons-material";
-
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 import DataTable from "../../components/DataTable";
-
-// const TextMaskCustom = React.forwardRef(function TextMaskCustom(props, ref) {
-//   const { onChange, ...other } = props;
-//   return (
-//     <IMaskInput
-//       {...other}
-//       mask="#00-000-0000"
-//       definitions={{
-//         '#': /[1-9]/,
-//       }}
-//       inputRef={ref}
-//       onAccept={(value) => onChange({ target: { name: props.name, value } })}
-//       overwrite
-//     />
-//   );
-// });
-
-// TextMaskCustom.propTypes = {
-//   name: PropTypes.string.isRequired,
-//   onChange: PropTypes.func.isRequired,
-// };
 
 const Create = (props) => {
   const { t, tChoice } = useLaravelReactI18n();
@@ -42,13 +21,18 @@ const Create = (props) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [checkStatus, setCheckStatus] = useState(0); // 0:check, 1:checking, 2:error, 3:create, 4:creating, 5:error, 6:complete 
+  const [createStatus, setCreateStatus] = useState(0); // 0: default, 1: created
+  const [copyStatus, setCopyStatus] = useState(false);
   const [routing, setRouting] = useState([]);
+  const [copyContent, setCopyContent] = useState([]);
   const [trader, setTrader] = useState({
+    id: '',
     date: '',
     company_name: '',
     routing_id: 0,
     telephone_number: '1234567890',
-    prefecture: ''
+    prefecture: 'なし',
+    site_type:''
   });
 
   const traderColumns = [
@@ -122,9 +106,11 @@ const Create = (props) => {
 
 
   const [traders, setTraders] = useState([]);
+  const [clipboard, setClipboard] = useState([]);
 
   useEffect(() => {
     getRouting();
+    getClipboardSetting();
   }, [])
 
   const getRouting = async() => {
@@ -148,7 +134,27 @@ const Create = (props) => {
     }
   }
 
-  const steps = ['Duplicate Check', 'Trader Create'];
+  const getClipboardSetting = async() => {
+    dispatch(startAction())
+    try {
+      const res = await agent.common.getClipboard()
+      if (res.data.success) {
+        setClipboard([...res.data.data])
+      }
+      dispatch(endAction())
+    } catch (error) {
+      if (error.response.status >= 400 && error.response.status <= 500) {
+        dispatch(endAction())
+        dispatch(showToast('error', error.response.data.message))
+        if (error.response.data.message == 'Unauthorized') {
+          localStorage.removeItem('token')
+          dispatch(logout())
+          navigate('/')
+        }
+      }
+    }
+  }
+  const steps = [t('Duplicate Check'), t('Trader Create')];
   
   const [activeStep, setActiveStep] = useState(0);
 
@@ -163,6 +169,7 @@ const Create = (props) => {
   const handleReset = () => {
     setCheckStatus(0);
     setActiveStep(0);
+    setCreateStatus(0);
   };
 
   const handleChange = (event) => {
@@ -173,15 +180,13 @@ const Create = (props) => {
   }
 
   const handleDuplicateCheck = async() => {
-    console.log(trader);
-    if(trader.date === '' || trader.company_name === '' || trader.routing_id === 0 || trader.prefecture_id === 0){
-      dispatch(showToast('error', 'All value must be entered!'))
+    if(trader.date === '' || trader.company_name === '' || trader.routing_id === 0 || trader.prefecture === 'なし' || trader.telephone_number == ''){
+      dispatch(showToast('error', t('All values must be entered!')))
     } else {
       setCheckStatus(1);
       dispatch(startAction())
       try {
         const res = await agent.common.checkTrader(trader)
-        console.log(res.data)
         if (res.data.success) {
           setCheckStatus(3);
           setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -213,6 +218,8 @@ const Create = (props) => {
       if (res.data.success) {
         setCheckStatus(6);
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        setCreateStatus(1);
+        calcCopyTXT(res.data.data.id);
       } else {
         setCheckStatus(5);
       } 
@@ -239,12 +246,80 @@ const Create = (props) => {
   };
 
   const clickCancelBtn = () => {
+    setCreateStatus(0);
     props.clickCancelBtn();
   }
+
+  const calcCopyTXT = (primary_id) => {
+    var selectedRouting = routing.find(element => element.id == trader.routing_id);
+    clipboard.sort((a, b) => a.column_number !== b.column_number ? a.column_number < b.column_number ? -1 : 1 : 0);
+    var content = '';
+    for(let i = 0; i < clipboard.length ; i ++){
+      if( i == 0){
+        if(clipboard[i].column_number > 0){
+          let tabCount = clipboard[i].column_number;
+          let j = 0;
+          for(j = 0;  j < tabCount; j ++ ){
+            content += "\t";
+          }
+        }
+      }
+      else{
+        let tabCount = clipboard[i].column_number - clipboard[i-1].column_number;
+        let j = 0;
+        for(j = 0;  j < tabCount; j ++ ){
+          content += "\t";
+        }
+      }
+
+      if(clipboard[i].column_name == 'ID'){
+        content += primary_id;
+      }
+      if(clipboard[i].column_name == '日付'){
+        content += trader.date;
+      }
+      if(clipboard[i].column_name == 'サイト種別'){
+        content += trader.site_type;
+      }
+      if(clipboard[i].column_name == '経路'){
+        content += selectedRouting.path_name;
+      }
+      if(clipboard[i].column_name == '社名'){
+        content += trader.company_name;
+      } 
+      if(clipboard[i].column_name == '電話番号'){
+        content += trader.telephone_number;
+      }
+      if(clipboard[i].column_name == '都道府県'){
+        content += trader.prefecture;
+      }
+    }
+    setCopyContent(content);
+  }
+
   return (
     <>
       <div className="row">                            
         <div className="col-md-6">
+          {
+            createStatus == 1 ?
+            <TextField 
+            id="id" 
+            type="text"
+            name="id" 
+            label={ t('ID') }
+            InputLabelProps={{
+              shrink: true,
+            }}
+            value={trader.id}
+            onChange={handleChange}
+            margin="normal"
+            fullWidth
+            disabled
+            />
+            :
+            null
+          }
           <TextField 
             id="date" 
             type="date"
@@ -256,6 +331,7 @@ const Create = (props) => {
             onChange={handleChange}
             margin="normal"
             fullWidth
+            disabled={createStatus == 1 ? true : false}
             />
 
           <FormControl fullWidth margin="normal">
@@ -267,8 +343,9 @@ const Create = (props) => {
               label={ t('Routing') }
               value={trader.routing_id}
               onChange={handleChange}
+              disabled={createStatus == 1 ? true : false}
             >
-              <MenuItem value={0} key="none">None</MenuItem>
+              <MenuItem value={0} key="none">{t('None')}</MenuItem>
               {
                 routing.length > 0 && routing.map((item, index) => 
                   <MenuItem value={item.id} key={index}>{item.path_name}</MenuItem>
@@ -285,6 +362,7 @@ const Create = (props) => {
             onChange={handleChange}
             margin="normal"
             fullWidth 
+            disabled={createStatus == 1 ? true : false}
             />
 
           <TextField 
@@ -295,17 +373,19 @@ const Create = (props) => {
             onChange={handleChange}
             margin="normal"
             fullWidth 
+            disabled={createStatus == 1 ? true : false}
             />
           
           <FormControl fullWidth margin="normal">
-            <InputLabel id="demo-simple-select-label">{ t('Prefectures') }</InputLabel>
+            <InputLabel id="demo-simple-select-label">{ t('Prefecture') }</InputLabel>
             <Select
               labelId="demo-simple-select-label"
               id="demo-simple-select"
               name="prefecture"
-              label="Prefecture"
+              label={ t('Prefecture') }
               value={trader.prefecture}
               onChange={handleChange}
+              disabled={createStatus == 1 ? true : false}
             >
               {
                 prefecturesList.length > 0 && prefecturesList.map((item, index) => 
@@ -339,13 +419,15 @@ const Create = (props) => {
                     <div>
                       {
                         index == 0 && checkStatus == 0 &&
-                        <Button
-                          variant="contained"
-                          onClick={handleDuplicateCheck}
-                          sx={{ mt: 1, mr: 1 }}
-                        >
-                          Check
-                        </Button> 
+                        <>
+                          <Button
+                            variant="contained"
+                            onClick={handleDuplicateCheck}
+                            sx={{ mt: 1, mr: 1 }}
+                          >
+                            {t('Duplicate Check')}
+                          </Button>
+                        </>
                       }
                       {
                         index == 0 && checkStatus == 1 &&
@@ -354,7 +436,7 @@ const Create = (props) => {
                           sx={{ mt: 1, mr: 1 }}
                         >
                           <CircularProgress color="secondary" size={20}/>  &nbsp;
-                          Checking...
+                          { t('Checking') }
                         </Button> 
                       }
                       {
@@ -364,7 +446,7 @@ const Create = (props) => {
                           onClick={handleDuplicateCheck}
                           sx={{ mt: 1, mr: 1 }}
                         >
-                          try
+                          { t('Try') }
                         </Button>
                       }
                       {
@@ -374,7 +456,7 @@ const Create = (props) => {
                           onClick={handleTraderCreate}
                           sx={{ mt: 1, mr: 1 }}
                         >
-                          Create
+                          { t('Create') }
                         </Button>
                       }
                       {
@@ -384,7 +466,7 @@ const Create = (props) => {
                           sx={{ mt: 1, mr: 1 }}
                         >
                           <CircularProgress color="secondary" size={20}/>  &nbsp;
-                          Creating...
+                          {t('Creating')}
                         </Button>
                       }
                       {
@@ -394,7 +476,7 @@ const Create = (props) => {
                           onClick={handleTraderCreate}
                           sx={{ mt: 1, mr: 1 }}
                         >
-                          Try
+                          { t('Try') }
                         </Button>
                       }
                     </div>
@@ -406,9 +488,18 @@ const Create = (props) => {
         </Stepper>
         {activeStep === steps.length && (
           <Paper square elevation={0} sx={{ p: 3 }}>
-            <Typography>Trader Created</Typography>
+            <Typography>{t('Trader Created')}</Typography>
+            <CopyToClipboard 
+              options={{format: "text/plain"}}
+              text={copyContent}
+              onCopy={() => setCopyStatus(true)}>
+              <Button variant="contained" sx={{ mt: 1, mr: 1 }}>
+                <ContentCopyIcon />{ t('Copy') }
+              </Button>
+            </CopyToClipboard>
+            {copyStatus ? <span style={{color: 'red'}}>{ t('Copied') }</span> : null}
             <Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
-              New Create
+              {t('Create')}
             </Button>
           </Paper>
         )}

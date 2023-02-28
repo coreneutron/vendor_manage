@@ -76,7 +76,7 @@ class TraderController extends Controller
         return response()->json([
             'success' => true,
             'data' => $trader,
-            'message' => 'Trader successfully created!'
+            'message' => '業者を登録しました。'
         ]);
     }
 
@@ -134,7 +134,11 @@ class TraderController extends Controller
      */
     public function check(Request $request)
     {
-        $traders = Trader::where('company_name', $request->company_name)->get();
+        $traders = Trader::where('company_name', $request->company_name)
+                           ->orWhere('telephone_number', $request->telephone_number)
+                           ->orWhere('mobilephone_number', $request->telephone_number)
+                           ->get();
+
         if(count($traders) > 0)
             return response()->json(['success' => false, 'data' => $traders]);
         else
@@ -257,13 +261,13 @@ class TraderController extends Controller
             }
             return response()->json([
                 'success' => true,
-                'message' => 'Successfully saved!'
+                'message' => '正常に作成されました。'
             ], 200);
         }
         else {
             return response()->json([
                 'success' => false,
-                'message' => 'Empty csv file!',
+                'message' => 'csv ファイルが空です。',
             ], 400);
         }
     }

@@ -157,21 +157,34 @@ class AuthController extends Controller
 	//     ]);
 	// }
 
-	// public function changePwd(Request $request)
-	// {
-	//     $validator = Validator::make($request->all(), [
-	//         'new_pwd' => 'required|string|min:6',
-	//     ]);
-	//     if ($validator->fails()) {
-	//         return response(['errors' => $validator->errors()->all()], 422);
-	//     }
-	//     $user = Auth::user();
-	//     $user->password = Hash::make($request['new_pwd']);
-	//     $user->save();
+	public function changePwd(Request $request)
+	{
+		$user = Auth::user();
 
-	//     return response()->json([
-	//         'success' => true,
-	//         'user' => $user
-	//     ]);
-	// }
+		$old_pwd = $request->old_pwd;
+		$new_pwd = $request->new_pwd;
+		$validator = Validator::make($request->all(), [
+			'new_pwd' => 'required|string|min:6',
+		]);
+		if($validator->fails()) {
+				return response()->json([
+						'success' => false,
+						'message' => 'Invalid password'
+				]);
+		}
+		if(Hash::check($old_pwd, $user->password)) {
+				$user->password = Hash::make($request['new_pwd']);
+			$user->save();
+				return response()->json([
+						'success' => true,
+						'user' => $user,
+						'message' => 'Password changed successfully'
+				]);
+		} else {
+				return response()->json([
+						'success' => false,
+						'message' => 'Please insert old password correctly'
+				]);
+		}
+	}
 }

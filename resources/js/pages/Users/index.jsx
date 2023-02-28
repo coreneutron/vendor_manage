@@ -156,14 +156,14 @@ const Users = () => {
 
   const submitRegister = async () => {
     if(signupData.first_name == '' || signupData.email == '' || signupData.password == '' || signupData.password_confirmation ==''){
-      dispatch(showToast('error', t('Please input all filed!')));
+      dispatch(showToast('error', t('All values must be entered!')));
       return ;
     }
     if(signupData.password != signupData.password_confirmation){
       dispatch(showToast('error', t('Password mismatch')));
       return ;
     } else if(signupData.password.length < 6) {
-      dispatch(showToast('error', t('Password Length Error!')));
+      dispatch(showToast('error', t('Password length greather than 6')));
       return ;
     }
     dispatch(startAction());
@@ -199,14 +199,14 @@ const Users = () => {
 
   const submitUpdate = async () => {
     if(editData.first_name == '' || editData.email == '' || editData.password == '' || editData.password_confirmation == ''){
-      dispatch(showToast('error', t('Please input all filed!')));
+      dispatch(showToast('error', t('All values must be entered!')));
       return ;
     }
     if(editData.password && editData.password != editData.password_confirmation){
       dispatch(showToast('error', t('Password mismatch')));
       return ;
     } else if(editData.password && editData.password.length < 6) {
-      dispatch(showToast('error', t('Password Length Error!')));
+      dispatch(showToast('error', t('Password length greather than 6')));
       return ;
     }
     dispatch(startAction())
@@ -214,7 +214,7 @@ const Users = () => {
       const res = await agent.common.updateUser(editData.id, editData);
       if (res.data.success) {
         getUsersData();
-        dispatch(showToast('success', 'Successfully updated!'));
+        dispatch(showToast('success', t('Successfully updated!')));
       }
       dispatch(endAction())
     } catch (error) {
@@ -253,7 +253,7 @@ const Users = () => {
       const res = await agent.common.deleteUser(id);
       if (res.data.success) {
         getUsersData();
-        dispatch(showToast('success', 'Successfully deleted!'));
+        dispatch(showToast('success', t('Successfully deleted!')));
       }
       dispatch(endAction());
     } catch (error) {

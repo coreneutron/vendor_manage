@@ -119,7 +119,7 @@ const Clipboard = (props) => {
       const res = await agent.common.updateClipboard(editData.id, editData);
       if (res.data.success) {
         getClipboardData();
-        dispatch(showToast('success', 'Successfully updated!'))
+        dispatch(showToast('success', t('Successfully updated!')))
       } else {
         dispatch(showToast('error', res.data.message))
       }

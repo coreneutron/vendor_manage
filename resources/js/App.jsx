@@ -14,6 +14,7 @@ import Traders from './pages/Traders'
 import Routing from './pages/Routing'
 import Clipboard from './pages/Clipboard'
 import Users from './pages/Users'
+import ChangePassword from './pages/ChangePassword';
 
 import Preloading from './components/Preloading'
 import ToastMsg from './components/ToastMsg'
@@ -48,12 +49,12 @@ export default function App(){
         <Route exact path="/" element={<NonProtectedRoute><Login /></NonProtectedRoute>} />
         <Route element={<SideLayout/>}>
           <Route path="/traders" element={<ProtectedRoute><Traders /></ProtectedRoute>} />
-          <Route path="/routing" element={<ProtectedRoute><Routing /></ProtectedRoute>} />
-          <Route path="/clipboard" element={<ProtectedRoute><Clipboard /></ProtectedRoute>} />
-          <Route path="/users" element={<AdminRoute><Users /></AdminRoute>} /> 
+          <Route path="/routing" element={<AdminRoute><Routing /></AdminRoute>} />
+          <Route path="/clipboard" element={<AdminRoute><Clipboard /></AdminRoute>} />
+          <Route path="/users" element={<AdminRoute><Users /></AdminRoute>} />
+          <Route path="/changePassword" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
         </Route>
       </Routes>
-
       <Preloading />
       <ToastMsg />
     </Router>

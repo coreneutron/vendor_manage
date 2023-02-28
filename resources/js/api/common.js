@@ -131,6 +131,19 @@ const commonApi = {
                 },
             }
         ),
+    changePassword: (old_pwd, new_pwd) =>
+        axios.post(
+            `${API_URL}/changePwd`,
+            {
+                old_pwd,
+                new_pwd,
+            },
+            {
+                headers: {
+                    Authorization: "Bearer " + localStorage.getItem("token"),
+                },
+            }
+        ),
 };
 
 export default commonApi;

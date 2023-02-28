@@ -1,5 +1,5 @@
 export const prefecturesList = [
-  { id: 0, value: "All" },
+  { id: 0, value: "なし" },
   { id: 1, value: "北海道" },
   { id: 2, value: "青森県" },
   { id: 3, value: "岩手県" },

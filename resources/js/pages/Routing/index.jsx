@@ -19,14 +19,6 @@ const Routing = (props) => {
   const [type, setType] = useState('create');
 
   const routingListColumns = [
-    // {
-    //   field: '',
-    //   headerName: t('ID'),
-    //   editable: false,
-    //   renderCell: (params) => (
-    //     <span key={params.id}>{params.id}</span>
-    //   )
-    // },
     {
       field: 'path_name',
       headerName: t('Path Name'),
@@ -49,13 +41,15 @@ const Routing = (props) => {
   }, [])
 
   const handleSaveClick = async(data) => {
-    if(!data.path_name || !data.display_order )
-      return dispatch(showToast('error', 'All values must be entered!'));
+    if(!data.path_name || !data.display_order ){
+      dispatch(showToast('error', t('All values must be entered!')));
+      getRouting()
+      return ;
+    }
     if(type == 'create') {
       dispatch(startAction())
       try {
         const res = await agent.common.addRouting(data)
-        console.log(res);
         if (res.data.success) {
           setRouting([...routing, res.data.data])
           getRouting()
@@ -65,7 +59,6 @@ const Routing = (props) => {
           dispatch(showToast('error', res.data.message))
         }
       } catch (error) {
-        console.log(error);
         if (error.response.status >= 400 && error.response.status <= 500) {
           dispatch(showToast('error', error.response.data.message))
           if (error.response.data.message == 'Unauthorized') {

@@ -45,7 +45,7 @@ class RoutingController extends Controller
         return response()->json([
             'success' => true,
             'data' => $routing,
-            'message' => '顧客情報を追加しました。'
+            'message' => '正常に作成されました。'
         ]);
     }
 
@@ -85,7 +85,7 @@ class RoutingController extends Controller
         return response()->json([
             'success' => true,
             'data' => $routing,
-            'message' => '顧客情報を更新しました。'
+            'message' => '正常に更新されました。'
         ]);
     }
 
@@ -100,7 +100,7 @@ class RoutingController extends Controller
         $routing->delete();
         return response()->json([
             'success' => true,
-            'message' => '顧客情報を削除しました。'
+            'message' => '正常に削除されました。'
         ]);
     }
 }

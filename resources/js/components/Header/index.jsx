@@ -13,8 +13,10 @@ import styles from './Header.module.scss';
 
 import {logout} from './../../actions/auth'
 
-const Header = () => {
+import { useLaravelReactI18n } from 'laravel-react-i18n'
 
+const Header = () => {
+  const { t, tChoice } = useLaravelReactI18n();
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
@@ -91,10 +93,10 @@ const Header = () => {
                       <span>{auth.currentUser.first_name}</span>
                       <a className="dud-logout" title="Logout" onClick={() => submitLogout()}><FiLogOut/></a>
                     </div>
-                    {/* <ul className="pro-body">
-                      <li><Link className='dropdown-item' to={'/profile'}><FiUser />&nbsp;&nbsp;&nbsp;&nbsp;Profile</Link></li>
-                      <li><Link className='dropdown-item' to={'/profile'}><BsKey />&nbsp;&nbsp;&nbsp;&nbsp;Change Password</Link></li>
-                    </ul> */}
+                    <ul className="pro-body">
+                      {/* <li><Link className='dropdown-item' to={'/profile'}><FiUser />&nbsp;&nbsp;&nbsp;&nbsp;Profile</Link></li> */}
+                      <li><Link className='dropdown-item' to={'/changePassword'}><BsKey />&nbsp;&nbsp;&nbsp;&nbsp;{t('Change Password')}</Link></li>
+                    </ul>
                   </div>
               }
             </div>

@@ -10,6 +10,7 @@ class Trader extends Model
     use HasFactory;
     
     protected $fillable = [
+        'id',
         'date',
         'company_name',
         'routing_id',

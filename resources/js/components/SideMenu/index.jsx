@@ -248,12 +248,15 @@ const SideMenu = () => {
           }
           {/* <StyledMenuItem icon={<HomeIcon/>} component={<Link to="/home" />}>{ t('Company Management') }</StyledMenuItem> */}
           <StyledMenuItem icon={<GroupsIcon/>} component={<Link to="/traders" />}>{ t('Trader Management') }</StyledMenuItem>
-          <StyledMenuItem icon={<LinkIcon />} component={<Link to="/routing" />}>{ t('Routing Management') }</StyledMenuItem>
-          <StyledMenuItem icon={<CopyrightIcon />} component={<Link to="/clipboard" />}>{ t('Clipboard Management') }</StyledMenuItem>
+          
           {
             auth.currentUser.role == 1
             ?
+            <>
+            <StyledMenuItem icon={<LinkIcon />} component={<Link to="/routing" />}>{ t('Routing Management') }</StyledMenuItem>
+            <StyledMenuItem icon={<CopyrightIcon />} component={<Link to="/clipboard" />}>{ t('Clipboard Management') }</StyledMenuItem>
             <StyledMenuItem icon={<PeopleIcon />} component={<Link to="/users" />}>{ t('User Management') }</StyledMenuItem>
+            </>
             :
             null
           }

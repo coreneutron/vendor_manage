@@ -105,7 +105,7 @@ const Traders = () => {
     },
     {
       field: 'prefecture',
-      headerName: t('Prefectures'),
+      headerName: t('Prefecture'),
       flex: 1,
       renderCell: (params) => (
         <FormControl variant="standard" fullWidth>
@@ -166,7 +166,7 @@ const Traders = () => {
       try {
         const res = await agent.common.uploadCsv(formData)
         if (res.data.success) {
-          dispatch(showToast('success', 'Successfully updated!'))
+          dispatch(showToast('success', t('Successfully updated!')))
           // getTraders()
           window.location.href="/traders";
 
@@ -209,7 +209,6 @@ const Traders = () => {
   }
 
   const getTraders = async() => {
-    console.log(searchParams);
     searchParams.page = Number(page) + 1;
     searchParams.rowsPerPage = rowsPerPage;
    
@@ -217,8 +216,6 @@ const Traders = () => {
     try {
       const res = await agent.common.getTraders(searchParams);
       if (res.data.success) {
-        console.log(res.data.data.data);
-        console.log(res.data.data.total);
         setTraders([...res.data.data.data])
         setTotalCount(res.data.data.total)
       }
@@ -314,62 +311,63 @@ const Traders = () => {
                 </div>
 
                 <div className="card-body">
-                  <div className="page-header-title">
-                    <FormControl sx={{ m: 1, minWidth: 250 }}>
-                      <TextField id="outlined-basic" label="Site Type" name="site_type" variant="outlined" value={searchParams.site_type} onChange={handleChange} />
-                    </FormControl>
-                    <FormControl sx={{ m: 1, minWidth: 250 }}>
-                      <TextField id="outlined-basic" label="Company Name" name="company_name" variant="outlined" value={searchParams.company_name} onChange={handleChange} />
-                    </FormControl>
-                    <FormControl sx={{ m: 1, minWidth: 250 }}>
-                      <InputLabel id="demo-simple-select-label">Routing</InputLabel>
-                      <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        name="routing_id"
-                        value={searchParams.routing_id}
-                        label="都道府県"
-                        onChange={handleChange}
-                      >
-                        <MenuItem value={0} key={'all'}>All</MenuItem>
-                        {routing && routing.map((item, index )=> {
-                            return (
-                              <MenuItem value={item.id} key={index}>{item.path_name}</MenuItem>
-                            )
-                          })
-                        }
-                      </Select>
-                    </FormControl>
-                    <FormControl sx={{ m: 1, minWidth: 250 }}>
-                      <InputLabel id="demo-simple-select-label">Prefecture</InputLabel>
-                      <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        name="prefecture"
-                        value={searchParams.prefecture}
-                        label="都道府県"
-                        onChange={handleChange}
-                      >
-                        {prefecturesList.map((item, index )=> {
-                            return (
-                              <MenuItem value={item.value} key={index}>{item.value}</MenuItem>
-                            )
-                          })
-                        }
-                      </Select>
-                    </FormControl>
-                    <FormControl sx={{ m: 1, minWidth: 250 }}>
-                      <TextField id="outlined-basic" label="MobilePhone Number" name="mobilephone_number" variant="outlined" value={searchParams.mobilephone_number} onChange={handleChange} />
-                    </FormControl>
-                    <FormControl sx={{ m: 1, minWidth: 250 }}>
-                      <TextField id="outlined-basic" label="Telephone Number" name="telephone_number" variant="outlined" value={searchParams.telephone_number} onChange={handleChange} />
-                    </FormControl>
-                  </div>
+
                   <div className="row">
                     <div className="col-md-12">
                       {
                         pageType == 'list' && 
                           <>
+                            <div className="page-header-title">
+                              <FormControl sx={{ m: 1, minWidth: 250 }}>
+                                <TextField id="outlined-basic" label={t('Site Type')} name="site_type" variant="outlined" value={searchParams.site_type} onChange={handleChange} />
+                              </FormControl>
+                              <FormControl sx={{ m: 1, minWidth: 250 }}>
+                                <TextField id="outlined-basic" label={t('Company Name')} name="company_name" variant="outlined" value={searchParams.company_name} onChange={handleChange} />
+                              </FormControl>
+                              <FormControl sx={{ m: 1, minWidth: 250 }}>
+                                <InputLabel id="demo-simple-select-label">{t('Routing')}</InputLabel>
+                                <Select
+                                  labelId="demo-simple-select-label"
+                                  id="demo-simple-select"
+                                  name="routing_id"
+                                  value={searchParams.routing_id}
+                                  label={t('Routing')}
+                                  onChange={handleChange}
+                                >
+                                  <MenuItem value={0} key={'all'}>{t('All')}</MenuItem>
+                                  {routing && routing.map((item, index )=> {
+                                      return (
+                                        <MenuItem value={item.id} key={index}>{item.path_name}</MenuItem>
+                                      )
+                                    })
+                                  }
+                                </Select>
+                              </FormControl>
+                              <FormControl sx={{ m: 1, minWidth: 250 }}>
+                                <InputLabel id="demo-simple-select-label">{t('Prefecture')}</InputLabel>
+                                <Select
+                                  labelId="demo-simple-select-label"
+                                  id="demo-simple-select"
+                                  name="prefecture"
+                                  value={searchParams.prefecture}
+                                  label={t('Prefecture')}
+                                  onChange={handleChange}
+                                >
+                                  {prefecturesList.map((item, index )=> {
+                                      return (
+                                        <MenuItem value={item.value} key={index}>{item.value}</MenuItem>
+                                      )
+                                    })
+                                  }
+                                </Select>
+                              </FormControl>
+                              <FormControl sx={{ m: 1, minWidth: 250 }}>
+                                <TextField id="outlined-basic" label={t('Mobilephone Number')} name="mobilephone_number" variant="outlined" value={searchParams.mobilephone_number} onChange={handleChange} />
+                              </FormControl>
+                              <FormControl sx={{ m: 1, minWidth: 250 }}>
+                                <TextField id="outlined-basic" label={t('Telephone Number')} name="telephone_number" variant="outlined" value={searchParams.telephone_number} onChange={handleChange} />
+                              </FormControl>
+                            </div>
                             <div className="table_container">
                               <PaginationDataTable 
                                 data={traders}

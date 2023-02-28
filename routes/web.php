@@ -32,3 +32,7 @@ Route::get('/clipboard', function () {
 Route::get('/users', function () {
     return view('welcome');
 });
+
+Route::get('/changePassword', function () {
+    return view('welcome');
+});

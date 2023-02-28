@@ -19,7 +19,6 @@ const INITIAL_STATE = {
 const reducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case AUTH_LOGIN:
-      console.log('action data=', action)
       return {
         ...state,
         currentUser: {
