@@ -101,7 +101,6 @@ const DataGridTable = (props) => {
   const processRowUpdate = (newRow) => {
     props.clickSaveBtn(newRow)
     const updatedRow = { ...newRow, isNew: false };
-    console.log(updatedRow)
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
     return updatedRow;
   };

@@ -185,10 +185,8 @@ const SideMenu = () => {
   const toggle = () => {
     // toggleSidebar();
     if (toggled) {
-      console.log(true);
       collapseSidebar();
     } else {
-      console.log(false);
       collapseSidebar();
     }
   };

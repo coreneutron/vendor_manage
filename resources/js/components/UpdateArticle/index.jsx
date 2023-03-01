@@ -118,7 +118,6 @@ const UpdateArticle = (props) => {
 	});
 
   useEffect(() => {
-    console.log("article id=", props.article_id)
     getArticleData()
     getConstructionOptions()
   }, [])

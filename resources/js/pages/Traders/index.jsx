@@ -11,6 +11,8 @@ import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 
 import { useLaravelReactI18n } from 'laravel-react-i18n'
 import { confirmAlert } from 'react-confirm-alert';
@@ -23,6 +25,7 @@ import { logout } from "../../actions/auth";
 
 import PaginationDataTable from "../../components/PaginationDataTable";
 import Create from './create';
+import Edit from './edit';
 import { prefecturesList } from '../../utils/prefectures';
 
 const Traders = () => {
@@ -55,6 +58,7 @@ const Traders = () => {
     telephone_number : ''
   });
 
+  const [detailData, setDetailData] = useState({});
   const traderColumns = [
     {
       field: 'id',
@@ -133,6 +137,12 @@ const Traders = () => {
       cellClassName: 'actions',
       getActions: ( params ) => {
         return [
+          <GridActionsCellItem
+            icon={<RemoveRedEyeIcon />}
+            label="Edit"
+            onClick={()=>handleTraderDetail(params.row)}
+            color="inherit"
+          />,
           <GridActionsCellItem
             icon={<DeleteIcon />}
             label="Delete"
@@ -238,6 +248,12 @@ const Traders = () => {
     setCardTitle(t('Trader Create'))
   }
 
+  const handleTraderDetail = (data) => {
+    setDetailData(data);
+    setPageType('detail')
+    setCardTitle(t('Trader Detail'))
+  }
+
   const handleDeleteClick= (id) => {
     confirmAlert({
       customUI: ({ onClose }) => {
@@ -253,6 +269,10 @@ const Traders = () => {
         );
       }
     });
+  }
+
+  const handleCopy = (row) => {
+
   }
 
   const handleTraderDelete = async(id) => {
@@ -387,6 +407,9 @@ const Traders = () => {
                       }
                       {
                         pageType == 'add' && <Create clickCancelBtn={()=>clickCancelBtn()} />
+                      }
+                      {
+                        pageType == 'detail' && <Edit detailData={detailData} clickCancelBtn={()=>clickCancelBtn()} />
                       }
                     </div>
                   </div>

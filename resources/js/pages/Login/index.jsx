@@ -34,7 +34,6 @@ const Login = () => {
       dispatch(startAction())
       try {
         let res = await agent.auth.login(loginData.email, loginData.password)
-        console.log('response is ', res)
         dispatch(endAction())
         if (res.data.success) {
           localStorage.setItem('token', res.data.token)
@@ -47,7 +46,6 @@ const Login = () => {
       } catch (error) {
         if (error.response != undefined) {
           if (error.response.status >= 400 && error.response.status <= 500) {
-            console.log(error.response)
             dispatch(endAction())
             dispatch(showToast('error', error.response.data.message))
           }

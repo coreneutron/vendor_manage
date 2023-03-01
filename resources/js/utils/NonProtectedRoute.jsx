@@ -21,7 +21,6 @@ const NonProtectedRoute = props => {
         try {
           const res = await agent.auth.me()
           if (res.data.email) {
-            console.log(res)
             dispatch(login(res.data))
             navigate("/traders")
           }

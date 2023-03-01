@@ -55,20 +55,16 @@ const Clipboard = (props) => {
     }, 
     {
       field: 'actions',
-      type: 'actions',
       headerName: '操作',
       minWidth: 100,
-      cellClassName: 'actions',
       renderCell: ( params ) => {
-          return [
-          <GridActionsCellItem
-            icon={<EditIcon />}
-            label="Edit"
-            className="table_inline_btn"
-            onClick={()=>handleClipboardEdit(params.row)}
-            color="inherit"
-          />
-          ];
+        if(params.row.role != 1){
+          return  <div>
+            <EditIcon onClick={()=>handleClipboardEdit(params.row)} style={{cursor: 'pointer', fontSize: '1.25rem'}} />
+          </div>
+        } 
+        else 
+          return <div key={params.row.id}></div>;
       },
     },
   ]

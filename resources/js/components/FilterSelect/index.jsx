@@ -34,7 +34,6 @@ const FilterSelect = (props) => {
   }
 
   useEffect(() => {
-    console.log(props.value)
   }, [props.value])
 
   return (

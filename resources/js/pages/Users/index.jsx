@@ -43,7 +43,8 @@ const Users = () => {
       headerName: 'ID',
       maxWidth: 100,
       editable: false
-    }, {
+    }, 
+    {
       field: 'first_name',
       headerName: t('User Name'),
       editable: false,
@@ -57,7 +58,8 @@ const Users = () => {
       headerName: t('Email'),
       editable: false,
       flex: 1,
-    }, {
+    }, 
+    {
       field: 'role',
       headerName: t('Role'),
       editable: false,
@@ -76,7 +78,6 @@ const Users = () => {
       headerName: t('Status'),
       flex: 1,
       renderCell: (params) => {
-        console.log(params)
         if(params.row.role != 1){
           if(params.row.disabled == 1) {
             return <a className="table_user_disable_edit_btn" onClick={() => updateAccountStatus(params.row.id, 0)}>{ t('Disabled') }</a>
@@ -88,28 +89,17 @@ const Users = () => {
     },
     {
       field: 'actions',
-      type: 'actions',
       headerName: '操作',
       minWidth: 100,
-      cellClassName: 'actions',
       renderCell: ( params ) => {
         if(params.row.role != 1){
-          return [
-            <GridActionsCellItem
-              icon={<RemoveRedEyeIcon />}
-              label="Edit"
-              className="table_inline_btn"
-              onClick={()=>handleUserEdit(params.row)}
-              color="inherit"
-            />,
-            <GridActionsCellItem
-              icon={<DeleteIcon />}
-              label="Delete"
-              onClick={()=>handleDeleteClick(params.row.id)}
-              color="inherit"
-            />
-          ];
-        } else return <div></div>;
+          return  <div>
+            <RemoveRedEyeIcon onClick={()=>handleUserEdit(params.row)} style={{cursor: 'pointer', fontSize: '1.25rem', marginRight: '10px'}} />
+            <DeleteIcon onClick={()=>handleDeleteClick(params.row.id)} style={{cursor: 'pointer', fontSize: '1.25rem'}} />
+          </div>
+        } 
+        else 
+          return <div key={params.row.id}></div>;
       },
     },
   ]

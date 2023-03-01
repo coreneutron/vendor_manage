@@ -73,7 +73,6 @@ const Routing = (props) => {
       dispatch(startAction())
       try {
         const res = await agent.common.editRouting(data.id, data)
-        console.log(res);
         if (res.data.success) {
           dispatch(showToast('success', res.data.message))
           getRouting()
@@ -81,7 +80,6 @@ const Routing = (props) => {
         else dispatch(showToast('error', res.data.message))
         dispatch(endAction())
       } catch (error) {
-        console.log(error);
         if (error.response.status >= 400 && error.response.status <= 500) {
           dispatch(showToast('error', error.response.data.message))
           if (error.response.data.message == 'Unauthorized') {
@@ -129,7 +127,6 @@ const Routing = (props) => {
   }
   
   const handleCancelClick= () => {
-    console.log('cancel');
   }
 
   const getRouting = async() => {
