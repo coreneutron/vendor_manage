@@ -126,7 +126,7 @@ class AuthController extends Controller
 	{
 			$token = $request->user()->currentAccessToken()->delete();
 	    $response = [
-	        'message' => '。',
+	        'message' => 'ログアウトしました。',
 	        'success' => true,
 	    ];
 	    return response($response, 200);
