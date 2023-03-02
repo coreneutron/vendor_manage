@@ -34,7 +34,7 @@ class TraderController extends Controller
                    $query->where('company_name', 'LIKE', '%'.$company_name.'%');
                 if($routing_id && $routing_id != 0 )
                    $query->where('routing_id', $routing_id);
-                if($prefecture && $prefecture != 'All')
+                if($prefecture && $prefecture != '全て')
                     $query->where('prefecture', $prefecture);
                 if($mobilephone_number)
                     $query->where('mobilephone_number', 'LIKE', '%'.$mobilephone_number.'%');

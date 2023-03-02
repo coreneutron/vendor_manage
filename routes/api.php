@@ -40,6 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('check_trader', [TraderController::class, 'check']);
     Route::post('add_trader_from_csv', [TraderController::class, 'addFromCsv']);
     Route::post('/changePwd', [AuthController::class, 'changePwd']);
+
+    Route::get('/logout', [AuthController::class, 'logout']);
 });
 
 

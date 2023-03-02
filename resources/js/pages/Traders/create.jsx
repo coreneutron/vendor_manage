@@ -31,7 +31,7 @@ const Create = (props) => {
     company_name: '',
     routing_id: 0,
     telephone_number: '',
-    prefecture: 'なし',
+    prefecture: '全て',
     site_type:''
   });
 
@@ -180,7 +180,7 @@ const Create = (props) => {
   }
 
   const handleDuplicateCheck = async() => {
-    if(trader.date === '' || trader.company_name === '' || trader.routing_id === 0 || trader.prefecture === 'なし' || trader.telephone_number == '' || trader.site_type == '' ){
+    if(trader.date === '' || trader.company_name === '' || trader.routing_id === 0 || trader.prefecture === '全て' || trader.telephone_number == '' || trader.site_type == '' ){
       dispatch(showToast('error', t('All values must be entered!')))
     } else {
       setCheckStatus(1);
@@ -345,7 +345,7 @@ const Create = (props) => {
               onChange={handleChange}
               disabled={createStatus == 1 ? true : false}
             >
-              <MenuItem value={0} key="none">{t('None')}</MenuItem>
+              <MenuItem value={0} key="none">{t('All')}</MenuItem>
               {
                 routing.length > 0 && routing.map((item, index) => 
                   <MenuItem value={item.id} key={index}>{item.path_name}</MenuItem>

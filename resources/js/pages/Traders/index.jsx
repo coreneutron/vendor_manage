@@ -53,7 +53,7 @@ const Traders = () => {
     site_type : '',
     company_name : '',
     routing_id : 0,
-    prefecture : '',
+    prefecture : '全て',
     mobilephone_number : '',
     telephone_number : ''
   });

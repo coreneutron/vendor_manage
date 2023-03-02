@@ -22,6 +22,13 @@ const authApi = {
   }),
 
   me: () => axios.get(`${API_URL}/user`, authHeader),
+
+  logout: () =>
+    axios.get(`${API_URL}/logout`, {
+        headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+    }),
 }
 
 export default authApi

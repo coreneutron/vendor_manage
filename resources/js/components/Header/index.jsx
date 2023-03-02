@@ -11,7 +11,17 @@ import MailIcon from '@mui/icons-material/Mail';
 
 import styles from './Header.module.scss';
 
-import {logout} from './../../actions/auth'
+import {
+  startAction,
+  endAction,
+  showToast
+} from '../../actions/common'
+import {
+  login,
+  logout
+} from '../../actions/auth'
+import { useResize, checkMobileDevice } from "../../utils/Helper"
+import agent from '../../api/'
 
 import { useLaravelReactI18n } from 'laravel-react-i18n'
 
@@ -59,11 +69,16 @@ const Header = () => {
     }
   }
 
-  const submitLogout = () => {
-    localStorage.removeItem('token')
-    dispatch(logout()).then(() => {
+  const submitLogout = async() => {
+    dispatch(startAction())
+		const res = await agent.auth.logout()
+		if (res.data.success) {
+      dispatch(showToast('success', t(res.data.message)))
+      localStorage.removeItem('token')
+      dispatch(logout())
       navigate("/")
-    })
+    } else dispatch(showToast('error', t(res.data.message)))
+		dispatch(endAction())
   }
 
   return (
