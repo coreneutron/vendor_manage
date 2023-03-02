@@ -204,7 +204,7 @@ const Clipboard = (props) => {
                             }
                           </Select>
                         </FormControl>
-                        <Button variant="outlined" onClick={() => submitUpdate()}>{ t('Clipboard Update') }</Button>
+                        <Button variant="outlined" onClick={() => submitUpdate()}>{ t('Save') }</Button>
                       </div>
                       <div>
                         <Button color="primary" startIcon={<ArrowBackIcon />} onClick={() => clickBackBtn()}>{ t('Back') }</Button>

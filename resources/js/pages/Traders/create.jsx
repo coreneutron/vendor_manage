@@ -30,7 +30,7 @@ const Create = (props) => {
     date: '',
     company_name: '',
     routing_id: 0,
-    telephone_number: '1234567890',
+    telephone_number: '',
     prefecture: 'なし',
     site_type:''
   });
@@ -84,7 +84,7 @@ const Create = (props) => {
     },
     {
       field: 'prefecture',
-      headerName: t('Prefectures'),
+      headerName: t('Prefecture'),
       renderCell: () => (
         <FormControl variant="standard" fullWidth>
           <Select
@@ -180,7 +180,7 @@ const Create = (props) => {
   }
 
   const handleDuplicateCheck = async() => {
-    if(trader.date === '' || trader.company_name === '' || trader.routing_id === 0 || trader.prefecture === 'なし' || trader.telephone_number == ''){
+    if(trader.date === '' || trader.company_name === '' || trader.routing_id === 0 || trader.prefecture === 'なし' || trader.telephone_number == '' || trader.site_type == '' ){
       dispatch(showToast('error', t('All values must be entered!')))
     } else {
       setCheckStatus(1);
@@ -324,7 +324,7 @@ const Create = (props) => {
             id="date" 
             type="date"
             name="date" 
-            label={ t('Date') }
+            label={ t('Inquiry Date') }
             InputLabelProps={{
               shrink: true,
             }}
@@ -354,6 +354,17 @@ const Create = (props) => {
             </Select>
           </FormControl>
           
+          <TextField 
+            id="fullWidth"
+            name="site_type"
+            label={ t('Site Type') } 
+            value={trader.site_type}
+            onChange={handleChange}
+            margin="normal"
+            fullWidth 
+            disabled={createStatus == 1 ? true : false}
+            />
+
           <TextField 
             id="fullWidth"
             name="company_name"
@@ -403,7 +414,7 @@ const Create = (props) => {
               labelProps.optional = (
                 <Typography variant="caption" color="error">
                 {
-                  checkStatus === 2 ? 'Duplicated' : null
+                  checkStatus === 2 ? t('Duplicated') : null
                 }
                 </Typography>
               );
@@ -446,7 +457,7 @@ const Create = (props) => {
                           onClick={handleDuplicateCheck}
                           sx={{ mt: 1, mr: 1 }}
                         >
-                          { t('Try') }
+                          {t('Duplicate Check')}
                         </Button>
                       }
                       {
@@ -476,7 +487,7 @@ const Create = (props) => {
                           onClick={handleTraderCreate}
                           sx={{ mt: 1, mr: 1 }}
                         >
-                          { t('Try') }
+                          { t('Create') }
                         </Button>
                       }
                     </div>

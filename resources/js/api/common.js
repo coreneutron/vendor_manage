@@ -28,6 +28,18 @@ const commonApi = {
                 },
             }
         ),
+    getTrader: (id) =>
+        axios.post(`${API_URL}/getTrader`, {id}, {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+        }),
+    updateTrader: (id, data) =>
+        axios.put(`${API_URL}/trader/${id}`, data, {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+        }),
     getTraders: (params) =>
         axios.post(`${API_URL}/all_traders`, params,  {
             headers: {

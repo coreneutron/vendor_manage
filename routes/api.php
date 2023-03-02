@@ -33,7 +33,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('roles', RoleController::class);
     Route::apiResource('user-role', UserRoleController::class);
     Route::apiResource('routing', RoutingController::class);
-    Route::apiResource('trader', TraderController::class);
+    Route::apiResource('trader', TraderController::class); 
+    Route::post('getTrader', [TraderController::class, 'getTrader']); 
     Route::post('all_traders', [TraderController::class, 'index']);
     Route::apiResource('clipboard', ClipboardController::class);
     Route::post('check_trader', [TraderController::class, 'check']);

@@ -111,7 +111,11 @@ class TraderController extends Controller
      */
     public function update(Request $request, Trader $trader)
     {
-        //
+        $trader->update($request->all());
+        return response()->json([
+            'success' => true,
+            'data' => $trader
+        ]);
     }
 
     /**
@@ -270,5 +274,14 @@ class TraderController extends Controller
                 'message' => 'csv ファイルが空です。',
             ], 400);
         }
+    }
+    public function getTrader(Request $request)
+    {
+        $id = $request->id;
+        $trader = Trader::where('id', $id)->first();
+        return response()->json([
+            'success' => true,
+            'data' => $trader
+        ]);    
     }
 }

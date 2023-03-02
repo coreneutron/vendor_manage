@@ -41,7 +41,7 @@ const Traders = () => {
     date: '',
     company_name: '',
     routing_id: 0,
-    telephone_number: '123-456-7890',
+    telephone_number: '',
     prefecture_id: 0
   });
 
@@ -312,6 +312,7 @@ const Traders = () => {
   const clickCancelBtn = () => {
     setPageType('list')
     setCardTitle(t('Trader List'))
+    getTraders()
   }
   return (
     <>

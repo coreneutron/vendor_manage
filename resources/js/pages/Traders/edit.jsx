@@ -26,15 +26,21 @@ const Edit = (props) => {
   const [clipboard, setClipboard] = useState([]);
   const [copyContent, setCopyContent] = useState([]);
   const [copyStatus, setCopyStatus] = useState(false);
+  const [editStatus, setEditStatus] = useState(false);
+  const [data, setData] = useState({
+    routing_id : 0,
+    prefecture : ''
+  });
 
   useEffect(() => {
     getRouting();
     getClipboardSetting();
+    getTrader(detailData.id);
   }, [])
 
   useEffect(() => {
     calcCopyTXT();
-  }, [routing, clipboard])
+  }, [routing, clipboard, data])
 
   const getRouting = async() => {
     dispatch(startAction())
@@ -78,12 +84,67 @@ const Edit = (props) => {
     }
   }
 
+  const getTrader = async(id) => {
+    dispatch(startAction())
+    try {
+      const res = await agent.common.getTrader(id)
+      if (res.data.success) {   
+        setData(res.data.data)
+      }
+      dispatch(endAction())
+    } catch (error) {
+      if (error.response.status >= 400 && error.response.status <= 500) {
+        dispatch(endAction())
+        dispatch(showToast('error', error.response.data.message))
+        if (error.response.data.message == 'Unauthorized') {
+          localStorage.removeItem('token')
+          dispatch(logout())
+          navigate('/')
+        }
+      }
+    }
+  }
+
   const clickCancelBtn = () => {
     props.clickCancelBtn();
   }
 
+  const clickEditBtn = () => {
+    setEditStatus(true);
+  }
+  const clickSaveBtn = async() => {
+    dispatch(startAction())
+    try {
+      const res = await agent.common.updateTrader(data.id, data)
+      if (res.data.success) {   
+        setData(res.data.data)
+        dispatch(showToast('success', t('Successfully updated!')))
+        getTrader(detailData.id);
+      }
+      dispatch(endAction())
+    } catch (error) {
+      if (error.response.status >= 400 && error.response.status <= 500) {
+        dispatch(endAction())
+        dispatch(showToast('error', error.response.data.message))
+        if (error.response.data.message == 'Unauthorized') {
+          localStorage.removeItem('token')
+          dispatch(logout())
+          navigate('/')
+        }
+      }
+    }
+  }
+  const clickEditCancelBtn = () => {
+    setEditStatus(false);
+    getTrader(detailData.id);
+
+  }
+  const handleChange = (event) => {
+    setData({...data, [event.target.name]:event.target.value})
+  }
+
   const calcCopyTXT = () => {
-    var selectedRouting = routing.find(element => element.id == detailData.routing_id);
+    var selectedRouting = routing.find(element => element.id == data.routing_id);
     clipboard.sort((a, b) => a.column_number !== b.column_number ? a.column_number < b.column_number ? -1 : 1 : 0);
     var content = '';
     for(let i = 0; i < clipboard.length ; i ++){
@@ -105,29 +166,29 @@ const Edit = (props) => {
       }
 
       if(clipboard[i].column_name == 'ID'){
-        content += detailData.id;
+        content += data.id;
       }
       if(clipboard[i].column_name == '日付'){
-        content += detailData.date;
+        content += data.date;
       }
       if(clipboard[i].column_name == 'サイト種別'){
-        if(detailData.site_type == null || undefined)
+        if(data.site_type == null || undefined)
           content += '';
         else
-          content += detailData.site_type;
+          content += data.site_type;
 
       }
       if(clipboard[i].column_name == '経路'){
         content += selectedRouting.path_name;
       }
       if(clipboard[i].column_name == '社名'){
-        content += detailData.company_name;
+        content += data.company_name;
       } 
       if(clipboard[i].column_name == '電話番号'){
-        content += detailData.telephone_number;
+        content += data.telephone_number;
       }
       if(clipboard[i].column_name == '都道府県'){
-        content += detailData.prefecture;
+        content += data.prefecture;
       }
     }
     setCopyContent(content);
@@ -145,23 +206,27 @@ const Edit = (props) => {
             InputLabelProps={{
               shrink: true,
             }}
-            value={detailData && detailData.id}
+            value={data.id}
             margin="normal"
+            onChange={handleChange}
             fullWidth
             disabled
             />
+
           <TextField 
             id="date" 
             type="date"
             name="date" 
             label={ t('Date') }
-            value = {detailData && detailData.date}
+            value = {data.date}
             InputLabelProps={{
               shrink: true,
             }}
             margin="normal"
+            onChange={handleChange}
+            
             fullWidth
-            disabled
+            disabled = {!editStatus}
             />
 
           <FormControl fullWidth margin="normal">
@@ -171,8 +236,12 @@ const Edit = (props) => {
               id="demo-simple-select"
               name="routing_id"
               label={ t('Routing') }
-              value={detailData && detailData.routing_id}
-              disabled
+              value={data.routing_id}
+              onChange={handleChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              disabled = {!editStatus}
             >
               <MenuItem value={0} key="none">{t('None')}</MenuItem>
               {
@@ -185,24 +254,46 @@ const Edit = (props) => {
           
           <TextField 
             id="fullWidth"
-            name="company_name"
-            label={ t('Company Name') } 
-            value={detailData && detailData.company_name}
+            name="site_type"
+            label={ t('Site Type') } 
+            value={data.site_type}
             margin="normal"
+            onChange={handleChange}
+            InputLabelProps={{
+              shrink: true,
+            }}
             fullWidth 
-            disabled
+            disabled = {!editStatus}
             />
 
           <TextField 
             id="fullWidth" 
-            name="telephone_number"
-            label={ t('Phone Number') } 
-            value={detailData && detailData.telephone_number}
+            name="membership_type"
+            label={ t('Membership Type') } 
+            value={data.membership_type}
             margin="normal"
+            onChange={handleChange}
+            InputLabelProps={{
+              shrink: true,
+            }}
             fullWidth 
-            disabled
+            disabled = {!editStatus}
             />
-          
+
+          <TextField 
+            id="fullWidth"
+            name="company_name"
+            label={ t('Company Name') } 
+            value={data.company_name}
+            margin="normal"
+            onChange={handleChange}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            fullWidth 
+            disabled = {!editStatus}
+            />
+
           <FormControl fullWidth margin="normal">
             <InputLabel id="demo-simple-select-label">{ t('Prefecture') }</InputLabel>
             <Select
@@ -210,8 +301,12 @@ const Edit = (props) => {
               id="demo-simple-select"
               name="prefecture"
               label={ t('Prefecture') }
-              value={detailData && detailData.prefecture}
-              disabled
+              value={data.prefecture}
+              onChange={handleChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              disabled = {!editStatus}
             >
               {
                 prefecturesList.length > 0 && prefecturesList.map((item, index) => 
@@ -220,22 +315,111 @@ const Edit = (props) => {
               }
             </Select>
           </FormControl>
+
+          <TextField 
+            id="fullWidth" 
+            name="cell_content"
+            label={ t('Cell Content') } 
+            value={data.cell_content}
+            margin="normal"
+            onChange={handleChange}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            fullWidth 
+            disabled = {!editStatus}
+            />
+
+          <TextField 
+            id="fullWidth" 
+            name="first_representative"
+            label={ t('First Representative') } 
+            value={data.first_representative}
+            margin="normal"
+            onChange={handleChange}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            fullWidth 
+            disabled = {!editStatus}
+            />
+
+          <TextField 
+            id="fullWidth" 
+            name="correspondence_situation"
+            label={ t('Correspondence Situation') } 
+            value={data.correspondence_situation}
+            margin="normal"
+            onChange={handleChange}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            fullWidth 
+            disabled = {!editStatus}
+            />
+
+          <TextField 
+            id="fullWidth" 
+            name="mobilephone_number"
+            label={ t('Mobilephone Number') } 
+            value={data.mobilephone_number}
+            margin="normal"
+            onChange={handleChange}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            fullWidth 
+            disabled = {!editStatus}
+            />
+
+          <TextField 
+            id="fullWidth" 
+            name="telephone_number"
+            label={ t('Telephone Number') } 
+            value={data.telephone_number}
+            margin="normal"
+            onChange={handleChange}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            fullWidth 
+            disabled = {!editStatus}
+            />
+
         </div>
       </div>
       <div style={{ textAlign: 'center'}}>
-        <CopyToClipboard 
-          options={{format: "text/plain"}}
-          text={copyContent}
-          onCopy={() => setCopyStatus(true)}>
-          <Button variant="contained" sx={{ mt: 1, mr: 1 }}>
-            { copyStatus ? 
-              <><ContentCopyIcon />{ t('Copied') }</>
-              : 
-              <><ContentCopyIcon />{ t('Copy') }</>
-            }
-            
+        {
+          editStatus == false ?
+          <>
+            <Button variant="contained" sx={{ mt: 1, mr: 1 }} onClick={()=> clickEditBtn()}>
+              {t('Edit')}
+            </Button>
+            <CopyToClipboard 
+              options={{format: "text/plain"}}
+              text={copyContent}
+              onCopy={() => setCopyStatus(true)}>
+              <Button variant="contained" sx={{ mt: 1, mr: 1 }}>
+                { copyStatus ? 
+                  <><ContentCopyIcon />{ t('Copied') }</>
+                  : 
+                  <><ContentCopyIcon />{ t('Copy') }</>
+                }
+                
+              </Button>
+            </CopyToClipboard>
+          </>
+          :
+          <>
+          <Button variant="contained" sx={{ mt: 1, mr: 1 }} onClick={()=> clickSaveBtn()}>
+            {t('Save')}
           </Button>
-        </CopyToClipboard>
+          <Button variant="contained" sx={{ mt: 1, mr: 1 }} onClick={()=> clickEditCancelBtn()}>
+            {t('Cancel')}
+          </Button>
+        </>
+        }
+
       </div>
       <hr />
       <div className="action_btn_group">
