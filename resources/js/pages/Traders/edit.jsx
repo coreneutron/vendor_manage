@@ -44,7 +44,7 @@ const Edit = (props) => {
 
   useEffect(() => {
     calcCopyTXT();
-  }, [data])
+  }, [data, routing])
 
   const getRouting = async() => {
     dispatch(startAction())
@@ -183,7 +183,11 @@ const Edit = (props) => {
 
       }
       if(clipboard[i].column_name == '経路'){
-        content += selectedRouting.path_name;
+        console.log(selectedRouting);
+        if(selectedRouting)
+          content += selectedRouting.path_name;
+        else
+          content += '';
       }
       if(clipboard[i].column_name == '社名'){
         content += data.company_name;
