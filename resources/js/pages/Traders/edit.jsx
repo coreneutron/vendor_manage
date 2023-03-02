@@ -38,9 +38,13 @@ const Edit = (props) => {
     getTrader(detailData.id);
   }, [])
 
+  // useEffect(() => {
+  //   calcCopyTXT();
+  // }, [routing, clipboard, data])
+
   useEffect(() => {
     calcCopyTXT();
-  }, [routing, clipboard, data])
+  }, [data])
 
   const getRouting = async() => {
     dispatch(startAction())
