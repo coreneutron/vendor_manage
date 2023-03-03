@@ -16,13 +16,13 @@ class CreateTradersTable extends Migration
         Schema::create('traders', function (Blueprint $table) {
             $table->id();
             $table->integer('tid')->nullable();
-            $table->string('date');
+            $table->string('date')->nullable();
             $table->string('site_type')->nullable();
             $table->integer('routing_id')->nullable();
             $table->string('membership_type')->nullable();
             $table->string('prefecture')->nullable();
             $table->longtext('cell_content')->nullable();
-            $table->string('company_name');
+            $table->string('company_name')->nullable();
             $table->string('first_representative')->nullable();
             $table->string('correspondence_situation')->nullable();
             $table->string('mobilephone_number')->nullable();
