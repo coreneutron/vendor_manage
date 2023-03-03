@@ -36,13 +36,17 @@ class TraderController extends Controller
                    $query->where('routing_id', $routing_id);
                 if($prefecture && $prefecture != '全て')
                     $query->where('prefecture', $prefecture);
-                if($mobilephone_number)
-                    $query->where('mobilephone_number', 'LIKE', '%'.$mobilephone_number.'%');
-                if($telephone_number)
-                    $query->where('telephone_number', 'LIKE', '%'.$telephone_number.'%');
+                if($mobilephone_number){
+                    $query->orWhere('mobilephone_number', 'LIKE', '%'.$mobilephone_number.'%');
+                    $query->orWhere('telephone_number', 'LIKE', '%'.$mobilephone_number.'%');
+                }
+                if($telephone_number){
+                    $query->orWhere('mobilephone_number', 'LIKE', '%'.$telephone_number.'%');
+                    $query->orWhere('telephone_number', 'LIKE', '%'.$telephone_number.'%');
+                }
                 if($page)
                     $query->skip($rows_per_page * $page);
-            })->paginate($rows_per_page);
+            })->orderBy('id', 'DESC')->paginate($rows_per_page);
 
             return response()->json([
                 'success' => true,
@@ -138,10 +142,17 @@ class TraderController extends Controller
      */
     public function check(Request $request)
     {
-        $traders = Trader::where('company_name', $request->company_name)
-                           ->orWhere('telephone_number', $request->telephone_number)
-                           ->orWhere('mobilephone_number', $request->telephone_number)
-                           ->get();
+        $company_name = $request->company_name;
+        $phone_number = str_replace('-', '', $request->telephone_number);
+
+        $traders = Trader::where(function ($query) use ($company_name, $phone_number ) {
+                if($company_name)
+                    $query->where('company_name', 'LIKE', '%'.$company_name.'%');
+                if($phone_number){
+                    $query->orWhere('mobilephone_number', 'LIKE', '%'.$phone_number.'%');
+                    $query->orWhere('telephone_number', 'LIKE', '%'.$phone_number.'%');
+                }
+        })->get();
 
         if(count($traders) > 0)
             return response()->json(['success' => false, 'data' => $traders]);
@@ -282,6 +293,15 @@ class TraderController extends Controller
         return response()->json([
             'success' => true,
             'data' => $trader
+        ]);    
+    }
+    public function selectedTraderDelete(Request $request)
+    {
+        foreach ($request->ids as $id) {
+            Trader::find($id)->delete();
+        }
+        return response()->json([
+            'success' => true
         ]);    
     }
 }

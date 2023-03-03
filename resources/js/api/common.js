@@ -61,6 +61,12 @@ const commonApi = {
                 Authorization: "Bearer " + localStorage.getItem("token"),
             },
         }),
+    selectedTraderDelete: (ids) =>
+        axios.post(`${API_URL}/selected_trader_delete`, {ids: ids},  {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+        }),
     getClipboard: () =>
         axios.get(`${API_URL}/clipboard`, {
             headers: {

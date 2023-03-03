@@ -42,12 +42,6 @@ const Create = (props) => {
       maxWidth: 150,
     },
     {
-      field: 'company_name',
-      headerName: t('Company Name'),
-      editable: false,
-      flex: 1,
-    },
-    {
       field: 'date',
       headerName: t('Date'),
       maxWidth: 200,
@@ -56,16 +50,23 @@ const Create = (props) => {
       flex: 1,
     }, 
     {
+      field: 'site_type',
+      headerName: t('Site Type'),
+      editable: false,
+      flex: 1,
+    },
+    {
       field: 'routing_id',
       headerName: t('Routing'),
       flex: 1,
-      renderCell: () => (
+      renderCell: (params) => (
         <FormControl variant="standard" fullWidth>
           <Select
             labelId="demo-simple-select-standard-label"
             id="demo-simple-select-standard"
             name="route"
-            value={trader.routing_id}
+            value={params.row.routing_id}
+            disabled
           >
           {
             routing.length > 0 && routing.map((item, index) => 
@@ -77,21 +78,22 @@ const Create = (props) => {
       ),
     },
     {
-      field: 'telephone_number',
-      headerName: t('Telephone Number'),
+      field: 'membership_type',
+      headerName: t('Membership Type'),
       editable: false,
       flex: 1,
     },
     {
       field: 'prefecture',
       headerName: t('Prefecture'),
-      renderCell: () => (
+      renderCell: (params) => (
         <FormControl variant="standard" fullWidth>
           <Select
             labelId="demo-simple-select-standard-label"
             id="demo-simple-select-standard"
             name="prefecture"
-            value={trader.prefecture}
+            value={params.row.prefecture}
+            disabled
           >
           {
             prefecturesList.length > 0 && prefecturesList.map((item, index) => 
@@ -101,7 +103,44 @@ const Create = (props) => {
           </Select>
         </FormControl>
       ),
-    }
+    },  
+    {
+      field: 'cell_content',
+      headerName: t('Cell Content'),
+      editable: false,
+      flex: 1,
+    },
+    {
+      field: 'company_name',
+      headerName: t('Company Name'),
+      editable: false,
+      flex: 1,
+    },
+    {
+      field: 'first_representative',
+      headerName: t('First Representative'),
+      editable: false,
+      flex: 1,
+    },
+    {
+      field: 'correspondence_situation',
+      headerName: t('Correspondence Situation'),
+      editable: false,
+      flex: 1,
+    },
+    {
+      field: 'mobilephone_number',
+      headerName: t('Mobilephone Number'),
+      editable: false,
+      flex: 1,
+    },
+    {
+      field: 'telephone_number',
+      headerName: t('Telephone Number'),
+      editable: false,
+      flex: 1,
+    },
+
   ]
 
 
@@ -173,15 +212,17 @@ const Create = (props) => {
   };
 
   const handleChange = (event) => {
-    setTrader({
-      ...trader,
-      [event.target.name]: event.target.value,
-    });
+    if(event.target.name == 'telephone_number'){
+      let pn = event.target.value.replaceAll('-', '');
+      setTrader({...trader, [event.target.name]: pn });
+    } else {
+      setTrader({...trader, [event.target.name]: event.target.value });
+    }
   }
 
   const handleDuplicateCheck = async() => {
-    if(trader.date === '' || trader.company_name === '' || trader.routing_id === 0 || trader.prefecture === '全て' || trader.telephone_number == '' || trader.site_type == '' ){
-      dispatch(showToast('error', t('All values must be entered!')))
+    if(trader.telephone_number == '' ){
+      dispatch(showToast('error', t('Phonenumber must be entered!')))
     } else {
       setCheckStatus(1);
       dispatch(startAction())
@@ -193,6 +234,8 @@ const Create = (props) => {
         } else {
           setCheckStatus(2);
           setTraders(res.data.data)
+          console.log('duplicated')
+          console.log(res.data.data)
         } 
         dispatch(endAction())
       } catch (error) {
@@ -210,6 +253,11 @@ const Create = (props) => {
     }
   }
 
+  const handleDuplicateCheckSkip = () =>{
+    setCheckStatus(3);
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  }
+
   const handleTraderCreate = async() => {
     setCheckStatus(4);
     dispatch(startAction())
@@ -225,6 +273,7 @@ const Create = (props) => {
       } 
       dispatch(endAction())
     } catch (error) {
+      console.log(error);
       setCheckStatus(3);
       if (error.response.status >= 400 && error.response.status <= 500) {
         dispatch(endAction())
@@ -282,7 +331,10 @@ const Create = (props) => {
         content += trader.site_type;
       }
       if(clipboard[i].column_name == '経路'){
-        content += selectedRouting.path_name;
+        if(selectedRouting)
+          content += selectedRouting.path_name;
+        else 
+          content += '';
       }
       if(clipboard[i].column_name == '社名'){
         content += trader.company_name;
@@ -452,6 +504,7 @@ const Create = (props) => {
                       }
                       {
                         index == 0 && checkStatus == 2 &&  
+                        <>
                         <Button
                           variant="contained"
                           onClick={handleDuplicateCheck}
@@ -459,6 +512,14 @@ const Create = (props) => {
                         >
                           {t('Duplicate Check')}
                         </Button>
+                        <Button
+                          variant="contained"
+                          onClick={handleDuplicateCheckSkip}
+                          sx={{ mt: 1, mr: 1 }}
+                        >
+                          {t('Skip')}
+                        </Button>
+                        </>
                       }
                       {
                         index == 1 && checkStatus == 3 &&  

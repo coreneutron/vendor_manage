@@ -6,7 +6,7 @@ import './DataTable.scss'
 export default function DataTable(props) {
   const { columns, data } = props;
 
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(25);
 
   return (
     <div style={{ height: 500, width: '100%' }}>
@@ -15,7 +15,8 @@ export default function DataTable(props) {
         columns={columns}
         pageSize={pageSize}
         onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-        rowsPerPageOptions={[10, 25, 50]}
+        rowsPerPageOptions={[25, 50, 100]}
+        disableSelectionOnClick
       />
     </div>
   );

@@ -46,7 +46,7 @@ const Traders = () => {
   });
 
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [totalCount, setTotalCount]=useState(0);
   // search params
   const [searchParams, setSearchParams] = useState({
@@ -153,6 +153,8 @@ const Traders = () => {
       },
     },
   ]
+
+  const [selectionModel, setSelectionModel] = useState([]);
 
   useEffect(() => {
     getRouting();
@@ -306,13 +308,62 @@ const Traders = () => {
   };
 
   const handleChange = (event) => {
-    setSearchParams({...searchParams, [event.target.name]: event.target.value});
+    if(event.target.name == 'telephone_number'){
+      let pn = event.target.value.replaceAll('-', '');
+      setSearchParams({...searchParams, [event.target.name]: pn });
+    }  else {
+      setSearchParams({...searchParams, [event.target.name]: event.target.value});
+    }
   };
 
   const clickCancelBtn = () => {
     setPageType('list')
     setCardTitle(t('Trader List'))
     getTraders()
+  }
+
+  const onSelectionModelChange = (newSelectionModel) => {
+    setSelectionModel(newSelectionModel);
+  }
+
+
+  const selectedItemDeleteConfirm= () => {
+    confirmAlert({
+      customUI: ({ onClose }) => {
+        return (
+          <div className='custom_alert'>
+            <h1><BsExclamationCircle /></h1>
+            <p>本当に削除しますか？</p>
+            <div className="btn_group">
+              <button type="button" className="btn btn-secondary" onClick={onClose}>いいえ</button>
+              <button type="button" className="btn btn-success" onClick={() => {onClose(); selectedItemDelete();}}>はい</button>
+            </div>
+          </div>
+        );
+      }
+    });
+  }
+
+  const selectedItemDelete = async() => {
+    dispatch(startAction())
+    try {
+      const res = await agent.common.selectedTraderDelete(selectionModel);
+      if (res.data.success) {
+        getTraders();
+        dispatch(showToast('success', 'Successfully deleted!'))
+      }
+      dispatch(endAction())
+    } catch (error) {
+      if (error.response.status >= 400 && error.response.status <= 500) {
+        dispatch(endAction())
+        dispatch(showToast('error', error.response.data.message))
+        if (error.response.data.message == 'Unauthorized') {
+          localStorage.removeItem('token')
+          dispatch(logout())
+          navigate('/')
+        }
+      }
+    }
   }
   return (
     <>
@@ -383,26 +434,30 @@ const Traders = () => {
                                 </Select>
                               </FormControl>
                               <FormControl sx={{ m: 1, minWidth: 250 }}>
-                                <TextField id="outlined-basic" label={t('Mobilephone Number')} name="mobilephone_number" variant="outlined" value={searchParams.mobilephone_number} onChange={handleChange} />
+                                <TextField id="outlined-basic" label={t('Phone Number')} name="mobilephone_number" variant="outlined" value={searchParams.mobilephone_number} onChange={handleChange} />
                               </FormControl>
-                              <FormControl sx={{ m: 1, minWidth: 250 }}>
+                              {/* <FormControl sx={{ m: 1, minWidth: 250 }}>
                                 <TextField id="outlined-basic" label={t('Telephone Number')} name="telephone_number" variant="outlined" value={searchParams.telephone_number} onChange={handleChange} />
-                              </FormControl>
+                              </FormControl> */}
                             </div>
                             <div className="table_container">
+                            {/* <Button color="primary" startIcon={<AddIcon />} onClick={() => createTrader()}>
+                              レコードを追加
+                            </Button> */}
                               <PaginationDataTable 
                                 data={traders}
                                 columns={traderColumns}
                                 paginationMode='server'
                                 pageSize={rowsPerPage}
-                                rowsPerPageOptions={[5, 10, 25, 100]}
+                                rowsPerPageOptions={[25, 50, 100]}
                                 totalCount={totalCount}
                                 onPageSizeChange={handlePageSizeChange}
                                 onPageChange={handleChangePage}
+                                onAddClick={createTrader}
+                                onDeleteClick={selectedItemDeleteConfirm}
+                                onSelectionModelChange={onSelectionModelChange}
+                                selectionModel = {selectionModel}
                                 />
-                              <Button color="primary" startIcon={<AddIcon />} onClick={() => createTrader()}>
-                                レコードを追加
-                              </Button>
                             </div>
                           </>
                       }

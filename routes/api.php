@@ -36,9 +36,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('trader', TraderController::class); 
     Route::post('getTrader', [TraderController::class, 'getTrader']); 
     Route::post('all_traders', [TraderController::class, 'index']);
-    Route::apiResource('clipboard', ClipboardController::class);
+    Route::post('selected_trader_delete', [TraderController::class, 'selectedTraderDelete']);
     Route::post('check_trader', [TraderController::class, 'check']);
     Route::post('add_trader_from_csv', [TraderController::class, 'addFromCsv']);
+    Route::apiResource('clipboard', ClipboardController::class);
     Route::post('/changePwd', [AuthController::class, 'changePwd']);
 
     Route::get('/logout', [AuthController::class, 'logout']);
