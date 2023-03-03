@@ -222,7 +222,7 @@ const Create = (props) => {
 
   const handleDuplicateCheck = async() => {
     if(trader.telephone_number == '' ){
-      dispatch(showToast('error', t('Phonenumber must be entered!')))
+      dispatch(showToast('error', t('Phone Number must be entered')))
     } else {
       setCheckStatus(1);
       dispatch(startAction())

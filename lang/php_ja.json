@@ -53,7 +53,7 @@
     "Password changed successfully":"パスワードを変更しました。",
     "Please insert old password correctly":"現在のパスワードを正しく入力ください。",
     "Phone Number" : "電話番号",
-    "Phone Number must be entered!" : "電話番号を入力してください。",
+    "Phone Number must be entered" : "電話番号を入力してください。",
     "Path Name" : "経路名",
     "Prefecture" : "都道府県",
     "Save" : "保存",
