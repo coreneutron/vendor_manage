@@ -221,6 +221,8 @@ const Traders = () => {
   }
 
   const getTraders = async() => {
+    console.log('--- get traders ---');
+    console.log(searchParams);
     searchParams.page = Number(page) + 1;
     searchParams.rowsPerPage = rowsPerPage;
    
@@ -311,6 +313,9 @@ const Traders = () => {
     if(event.target.name == 'telephone_number'){
       let pn = event.target.value.replaceAll('-', '');
       setSearchParams({...searchParams, [event.target.name]: pn });
+      console.log('--- handleChange')
+      console.log(pn)
+      console.log(pn)
     }  else {
       setSearchParams({...searchParams, [event.target.name]: event.target.value});
     }
@@ -375,10 +380,13 @@ const Traders = () => {
                 <div className="card-header" style={{display: 'flex', justifyContent:'space-between'}}>
                   <h5 className="card-title">{cardTitle}</h5>
                   <div style={{display: 'flex'}}>
-                    <div style={{cursor: 'pointer', marginRight: '20px'}} onClick={()=>handleUploadCsv()}>
-                      <FileUploadIcon />{t('Csv Add')}
-                      <input type="file" accept=".csv" ref={fileInputField} onChange={handleChangeCsv} style={{display: 'none'}}/>
-                    </div>
+                    {
+                      pageType == 'list' && 
+                      <div style={{cursor: 'pointer', marginRight: '20px'}} onClick={()=>handleUploadCsv()}>
+                        <FileUploadIcon />{t('Csv Add')}
+                        <input type="file" accept=".csv" ref={fileInputField} onChange={handleChangeCsv} style={{display: 'none'}}/>
+                      </div>
+                    }
                   </div>
                 </div>
 
@@ -433,12 +441,12 @@ const Traders = () => {
                                   }
                                 </Select>
                               </FormControl>
-                              <FormControl sx={{ m: 1, minWidth: 250 }}>
-                                <TextField id="outlined-basic" label={t('Phone Number')} name="mobilephone_number" variant="outlined" value={searchParams.mobilephone_number} onChange={handleChange} />
-                              </FormControl>
                               {/* <FormControl sx={{ m: 1, minWidth: 250 }}>
-                                <TextField id="outlined-basic" label={t('Telephone Number')} name="telephone_number" variant="outlined" value={searchParams.telephone_number} onChange={handleChange} />
+                                <TextField id="outlined-basic" label={t('Phone Number')} name="mobilephone_number" variant="outlined" value={searchParams.mobilephone_number} onChange={handleChange} />
                               </FormControl> */}
+                              <FormControl sx={{ m: 1, minWidth: 250 }}>
+                                <TextField id="outlined-basic" label={t('Phone Number')} name="telephone_number" variant="outlined" value={searchParams.telephone_number} onChange={handleChange} />
+                              </FormControl>
                             </div>
                             <div className="table_container">
                             {/* <Button color="primary" startIcon={<AddIcon />} onClick={() => createTrader()}>

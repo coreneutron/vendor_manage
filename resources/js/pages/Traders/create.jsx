@@ -14,6 +14,10 @@ import { prefecturesList } from '../../utils/prefectures';
 import { Check } from "@mui/icons-material";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import DataTable from "../../components/DataTable";
+import { GridActionsCellItem } from '@mui/x-data-grid';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+
+import DuplicateEdit from "./duplicateEdit";
 
 const Create = (props) => {
   const { t, tChoice } = useLaravelReactI18n();
@@ -35,11 +39,19 @@ const Create = (props) => {
     site_type:''
   });
 
+  const [subPageType, setSubPageType] = useState('list');
+  const [detailData, setDetailData] = useState({});
+
   const traderColumns = [
     {
       field: 'id',
       headerName: 'ID',
       maxWidth: 150,
+      renderCell: (params) => (
+          <span style={{cursor: 'pointer', color: '#04a9f5'}} onClick={()=>handleDuplicateTraderDetail(params.row)}>
+            {params.row.id}
+          </span>
+      ),
     },
     {
       field: 'date',
@@ -86,6 +98,7 @@ const Create = (props) => {
     {
       field: 'prefecture',
       headerName: t('Prefecture'),
+      flex: 1,
       renderCell: (params) => (
         <FormControl variant="standard" fullWidth>
           <Select
@@ -139,7 +152,25 @@ const Create = (props) => {
       headerName: t('Telephone Number'),
       editable: false,
       flex: 1,
-    },
+    }
+    // ,
+    // {
+    //   field: 'actions',
+    //   type: 'actions',
+    //   headerName: '操作',
+    //   minWidth: 100,
+    //   cellClassName: 'actions',
+    //   getActions: ( params ) => {
+    //     return [
+    //       <GridActionsCellItem
+    //         icon={<RemoveRedEyeIcon />}
+    //         label="Edit"
+    //         onClick={()=>handleDuplicateTraderDetail(params.row)}
+    //         color="inherit"
+    //       />
+    //     ];
+    //   },
+    // },
 
   ]
 
@@ -151,6 +182,12 @@ const Create = (props) => {
     getRouting();
     getClipboardSetting();
   }, [])
+
+  const handleDuplicateTraderDetail = (data) => {
+    setDetailData(data);
+    setSubPageType('detail')
+    setCardTitle(t('Trader Detail'))
+  }
 
   const getRouting = async() => {
     dispatch(startAction())
@@ -299,6 +336,10 @@ const Create = (props) => {
     props.clickCancelBtn();
   }
 
+  const clickDuplicateCancelBtn = () => {
+    setSubPageType('list');
+  }
+
   const calcCopyTXT = (primary_id) => {
     var selectedRouting = routing.find(element => element.id == trader.routing_id);
     clipboard.sort((a, b) => a.column_number !== b.column_number ? a.column_number < b.column_number ? -1 : 1 : 0);
@@ -351,138 +392,163 @@ const Create = (props) => {
 
   return (
     <>
-      <div className="row">                            
-        <div className="col-md-6">
-          {
-            createStatus == 1 ?
-            <TextField 
-            id="id" 
-            type="text"
-            name="id" 
-            label={ t('ID') }
-            InputLabelProps={{
-              shrink: true,
-            }}
-            value={trader.id}
-            onChange={handleChange}
-            margin="normal"
-            fullWidth
-            disabled
-            />
-            :
-            null
-          }
-          <TextField 
-            id="date" 
-            type="date"
-            name="date" 
-            label={ t('Inquiry Date') }
-            InputLabelProps={{
-              shrink: true,
-            }}
-            onChange={handleChange}
-            margin="normal"
-            fullWidth
-            disabled={createStatus == 1 ? true : false}
-            />
-
-          <FormControl fullWidth margin="normal">
-            <InputLabel id="demo-simple-select-label">{ t('Routing') }</InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              name="routing_id"
-              label={ t('Routing') }
-              value={trader.routing_id}
+      <div className="row">
+      {
+        subPageType == 'list' && 
+        <>
+          <div className="col-md-6">
+            {
+              createStatus == 1 ?
+              <TextField 
+              id="id" 
+              type="text"
+              name="id" 
+              label={ t('ID') }
+              InputLabelProps={{
+                shrink: true,
+              }}
+              value={trader.id}
               onChange={handleChange}
-              disabled={createStatus == 1 ? true : false}
-            >
-              <MenuItem value={0} key="none">{t('All')}</MenuItem>
-              {
-                routing.length > 0 && routing.map((item, index) => 
-                  <MenuItem value={item.id} key={index}>{item.path_name}</MenuItem>
-                )
-              }
-            </Select>
-          </FormControl>
-          
-          <TextField 
-            id="fullWidth"
-            name="site_type"
-            label={ t('Site Type') } 
-            value={trader.site_type}
-            onChange={handleChange}
-            margin="normal"
-            fullWidth 
-            disabled={createStatus == 1 ? true : false}
-            />
-
-          <TextField 
-            id="fullWidth"
-            name="company_name"
-            label={ t('Company Name') } 
-            value={trader.company_name}
-            onChange={handleChange}
-            margin="normal"
-            fullWidth 
-            disabled={createStatus == 1 ? true : false}
-            />
-
-          <TextField 
-            id="fullWidth" 
-            name="telephone_number"
-            label={ t('Phone Number') } 
-            value={trader.telephone_number}
-            onChange={handleChange}
-            margin="normal"
-            fullWidth 
-            disabled={createStatus == 1 ? true : false}
-            />
-          
-          <FormControl fullWidth margin="normal">
-            <InputLabel id="demo-simple-select-label">{ t('Prefecture') }</InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              name="prefecture"
-              label={ t('Prefecture') }
-              value={trader.prefecture}
-              onChange={handleChange}
-              disabled={createStatus == 1 ? true : false}
-            >
-              {
-                prefecturesList.length > 0 && prefecturesList.map((item, index) => 
-                  <MenuItem value={item.value} key={index}>{item.value}</MenuItem>
-                )
-              }
-            </Select>
-          </FormControl>
-        </div>
-        <div className="col-md-6">
-        <Stepper activeStep={activeStep} orientation="vertical">
-          {steps.map((label, index) => {
-            const labelProps = {};
-            if (isStepFailed(index)) {
-              labelProps.optional = (
-                <Typography variant="caption" color="error">
-                {
-                  checkStatus === 2 ? t('Duplicated') : null
-                }
-                </Typography>
-              );
-
-              labelProps.error = true;
+              margin="normal"
+              fullWidth
+              disabled
+              />
+              :
+              null
             }
+            <TextField 
+              id="date" 
+              type="date"
+              name="date" 
+              label={ t('Inquiry Date') }
+              InputLabelProps={{
+                shrink: true,
+              }}
+              onChange={handleChange}
+              margin="normal"
+              fullWidth
+              disabled={createStatus == 1 ? true : false}
+              />
 
-            return (
-              <Step key={label}>
-                <StepLabel {...labelProps}>{label}</StepLabel>
-                <StepContent>
-                  <Box sx={{ mb: 2 }}>
-                    <div>
-                      {
-                        index == 0 && checkStatus == 0 &&
-                        <>
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="demo-simple-select-label">{ t('Routing') }</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                name="routing_id"
+                label={ t('Routing') }
+                value={trader.routing_id}
+                onChange={handleChange}
+                disabled={createStatus == 1 ? true : false}
+              >
+                <MenuItem value={0} key="none">{t('All')}</MenuItem>
+                {
+                  routing.length > 0 && routing.map((item, index) => 
+                    <MenuItem value={item.id} key={index}>{item.path_name}</MenuItem>
+                  )
+                }
+              </Select>
+            </FormControl>
+            
+            <TextField 
+              id="fullWidth"
+              name="site_type"
+              label={ t('Site Type') } 
+              value={trader.site_type}
+              onChange={handleChange}
+              margin="normal"
+              fullWidth 
+              disabled={createStatus == 1 ? true : false}
+              />
+
+            <TextField 
+              id="fullWidth"
+              name="company_name"
+              label={ t('Company Name') } 
+              value={trader.company_name}
+              onChange={handleChange}
+              margin="normal"
+              fullWidth 
+              disabled={createStatus == 1 ? true : false}
+              />
+
+            <TextField 
+              id="fullWidth" 
+              name="telephone_number"
+              label={ t('Phone Number') } 
+              value={trader.telephone_number}
+              onChange={handleChange}
+              margin="normal"
+              fullWidth 
+              disabled={createStatus == 1 ? true : false}
+              />
+            
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="demo-simple-select-label">{ t('Prefecture') }</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                name="prefecture"
+                label={ t('Prefecture') }
+                value={trader.prefecture}
+                onChange={handleChange}
+                disabled={createStatus == 1 ? true : false}
+              >
+                {
+                  prefecturesList.length > 0 && prefecturesList.map((item, index) => 
+                    <MenuItem value={item.value} key={index}>{item.value}</MenuItem>
+                  )
+                }
+              </Select>
+            </FormControl>
+          </div>
+          <div className="col-md-6">
+          <Stepper activeStep={activeStep} orientation="vertical">
+            {steps.map((label, index) => {
+              const labelProps = {};
+              if (isStepFailed(index)) {
+                labelProps.optional = (
+                  <Typography variant="caption" color="error">
+                  {
+                    checkStatus === 2 ? t('Duplicated') : null
+                  }
+                  </Typography>
+                );
+
+                labelProps.error = true;
+              }
+
+              return (
+                <Step key={label}>
+                  <StepLabel {...labelProps}>{label}</StepLabel>
+                  <StepContent>
+                    <Box sx={{ mb: 2 }}>
+                      <div>
+                        {
+                          index == 0 && checkStatus == 0 &&
+                          <>
+                            <Button
+                              variant="contained"
+                              onClick={handleDuplicateCheck}
+                              sx={{ mt: 1, mr: 1 }}
+                            >
+                              {t('Duplicate Check')}
+                            </Button>
+                          </>
+                        }
+                        {
+                          index == 0 && checkStatus == 1 &&
+                          <Button
+                            variant="contained"
+                            sx={{ mt: 1, mr: 1 }}
+                          >
+                            <CircularProgress color="secondary" size={20}/>  &nbsp;
+                            { t('Checking') }
+                          </Button> 
+                        }
+                        {
+                          index == 0 && checkStatus == 2 &&  
+                          <>
                           <Button
                             variant="contained"
                             onClick={handleDuplicateCheck}
@@ -490,107 +556,89 @@ const Create = (props) => {
                           >
                             {t('Duplicate Check')}
                           </Button>
-                        </>
-                      }
-                      {
-                        index == 0 && checkStatus == 1 &&
-                        <Button
-                          variant="contained"
-                          sx={{ mt: 1, mr: 1 }}
-                        >
-                          <CircularProgress color="secondary" size={20}/>  &nbsp;
-                          { t('Checking') }
-                        </Button> 
-                      }
-                      {
-                        index == 0 && checkStatus == 2 &&  
-                        <>
-                        <Button
-                          variant="contained"
-                          onClick={handleDuplicateCheck}
-                          sx={{ mt: 1, mr: 1 }}
-                        >
-                          {t('Duplicate Check')}
-                        </Button>
-                        <Button
-                          variant="contained"
-                          onClick={handleDuplicateCheckSkip}
-                          sx={{ mt: 1, mr: 1 }}
-                        >
-                          {t('Skip')}
-                        </Button>
-                        </>
-                      }
-                      {
-                        index == 1 && checkStatus == 3 &&  
-                        <Button
-                          variant="contained"
-                          onClick={handleTraderCreate}
-                          sx={{ mt: 1, mr: 1 }}
-                        >
-                          { t('Create') }
-                        </Button>
-                      }
-                      {
-                        index == 1 && checkStatus == 4 &&  
-                        <Button
-                          variant="contained"
-                          sx={{ mt: 1, mr: 1 }}
-                        >
-                          <CircularProgress color="secondary" size={20}/>  &nbsp;
-                          {t('Creating')}
-                        </Button>
-                      }
-                      {
-                        index == 1 && checkStatus == 5 &&  
-                        <Button
-                          variant="contained"
-                          onClick={handleTraderCreate}
-                          sx={{ mt: 1, mr: 1 }}
-                        >
-                          { t('Create') }
-                        </Button>
-                      }
-                    </div>
-                  </Box>
-                </StepContent>
-              </Step>
-            );
-          })}
-        </Stepper>
-        {activeStep === steps.length && (
-          <Paper square elevation={0} sx={{ p: 3 }}>
-            <Typography>{t('Trader Created')}</Typography>
-            <CopyToClipboard 
-              options={{format: "text/plain"}}
-              text={copyContent}
-              onCopy={() => setCopyStatus(true)}>
-              <Button variant="contained" sx={{ mt: 1, mr: 1 }}>
-                <ContentCopyIcon />{ t('Copy') }
+                          <Button
+                            variant="contained"
+                            onClick={handleDuplicateCheckSkip}
+                            sx={{ mt: 1, mr: 1 }}
+                          >
+                            {t('Skip')}
+                          </Button>
+                          </>
+                        }
+                        {
+                          index == 1 && checkStatus == 3 &&  
+                          <Button
+                            variant="contained"
+                            onClick={handleTraderCreate}
+                            sx={{ mt: 1, mr: 1 }}
+                          >
+                            { t('Create') }
+                          </Button>
+                        }
+                        {
+                          index == 1 && checkStatus == 4 &&  
+                          <Button
+                            variant="contained"
+                            sx={{ mt: 1, mr: 1 }}
+                          >
+                            <CircularProgress color="secondary" size={20}/>  &nbsp;
+                            {t('Creating')}
+                          </Button>
+                        }
+                        {
+                          index == 1 && checkStatus == 5 &&  
+                          <Button
+                            variant="contained"
+                            onClick={handleTraderCreate}
+                            sx={{ mt: 1, mr: 1 }}
+                          >
+                            { t('Create') }
+                          </Button>
+                        }
+                      </div>
+                    </Box>
+                  </StepContent>
+                </Step>
+              );
+            })}
+          </Stepper>
+          {activeStep === steps.length && (
+            <Paper square elevation={0} sx={{ p: 3 }}>
+              <Typography>{t('Trader Created')}</Typography>
+              <CopyToClipboard 
+                options={{format: "text/plain"}}
+                text={copyContent}
+                onCopy={() => setCopyStatus(true)}>
+                <Button variant="contained" sx={{ mt: 1, mr: 1 }}>
+                  <ContentCopyIcon />{ t('Copy') }
+                </Button>
+              </CopyToClipboard>
+              {copyStatus ? <span style={{color: 'red'}}>{ t('Copied') }</span> : null}
+              <Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
+                {t('Create')}
               </Button>
-            </CopyToClipboard>
-            {copyStatus ? <span style={{color: 'red'}}>{ t('Copied') }</span> : null}
-            <Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
-              {t('Create')}
+            </Paper>
+          )}
+          </div>
+          {
+            checkStatus === 2 && traders.length > 0 &&
+            <DataTable 
+              data={traders}
+              columns={traderColumns} />
+          }
+          <hr />
+          <div className="action_btn_group">
+            <Button color="primary" startIcon={<ArrowBackIcon />} onClick={() => clickCancelBtn()}>
+              { t('Back') }
             </Button>
-          </Paper>
-        )}
-        </div>
-      </div>
+          </div>
+        </>
+      }                    
       {
-        checkStatus === 2 && traders.length > 0 &&
-        <DataTable 
-          data={traders}
-          columns={traderColumns} />
+        subPageType == 'detail' && <DuplicateEdit detailData={detailData} clickDuplicateCancelBtn={()=>clickDuplicateCancelBtn()} />
       }
-      <hr />
-      <div className="action_btn_group">
-        <Button color="primary" startIcon={<ArrowBackIcon />} onClick={() => clickCancelBtn()}>
-          { t('Back') }
-        </Button>
       </div>
-    </>
-                 
+    </>            
   )
 }
 
