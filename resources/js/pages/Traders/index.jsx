@@ -11,6 +11,7 @@ import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 
@@ -27,6 +28,8 @@ import PaginationDataTable from "../../components/PaginationDataTable";
 import Create from './create';
 import Edit from './edit';
 import { prefecturesList } from '../../utils/prefectures';
+
+import { API_URL } from "../../constants/";
 
 const Traders = () => {
   const { t, tChoice } = useLaravelReactI18n();
@@ -349,6 +352,10 @@ const Traders = () => {
     });
   }
 
+  const handleDownloadCsv = () => {
+    window.location.href= API_URL + "/download-csv";
+  }
+
   const selectedItemDelete = async() => {
     dispatch(startAction())
     try {
@@ -382,10 +389,15 @@ const Traders = () => {
                   <div style={{display: 'flex'}}>
                     {
                       pageType == 'list' && 
-                      <div style={{cursor: 'pointer', marginRight: '20px'}} onClick={()=>handleUploadCsv()}>
-                        <FileUploadIcon />{t('Csv Add')}
-                        <input type="file" accept=".csv" ref={fileInputField} onChange={handleChangeCsv} style={{display: 'none'}}/>
-                      </div>
+                      <>
+                        <div style={{cursor: 'pointer', marginRight: '20px'}} onClick={()=>handleDownloadCsv()}>
+                          <FileDownloadIcon />{t('Csv Download')}
+                        </div>
+                        <div style={{cursor: 'pointer', marginRight: '20px'}} onClick={()=>handleUploadCsv()}>
+                          <FileUploadIcon />{t('Csv Add')}
+                          <input type="file" accept=".csv" ref={fileInputField} onChange={handleChangeCsv} style={{display: 'none'}}/>
+                        </div>
+                      </>
                     }
                   </div>
                 </div>

@@ -6,6 +6,7 @@ use App\Models\Trader;
 use App\Models\Routing;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TraderController extends Controller
 {
@@ -303,5 +304,66 @@ class TraderController extends Controller
         return response()->json([
             'success' => true
         ]);    
+    }
+    public function export_csv(Request $request)
+    {
+       
+        // $allData = Trader::all();
+        // return $allData;
+        $response = new StreamedResponse(function() {
+            // Open output stream
+            $handle = fopen('php://output', 'w');
+            
+            // Add CSV headers
+            fputs($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fputcsv($handle, [
+                'ID',
+                '日付',
+                'サイト種別',
+                '経路',
+                '会員種別',
+                '都道府県',
+                '通話内容',
+                '社名',
+                '初回営業担当',
+                '対応状況',
+                '携帯番号',
+                '固定電話番号'
+            ]);
+            
+            Trader::chunk(100, function($traders) use ($handle) {
+                    foreach ($traders as $trader) {
+                        $routing_name = '';
+                        if($trader->routing_id) {
+                            $routing = Routing::where('id', $trader->routing_id)->first();
+                            if($routing)
+                                $routing_name = $routing['path_name'];
+                        }
+                        // Add a new row with data
+                        fputcsv($handle, [
+                            $trader->id,
+                            $trader->date,
+                            $trader->site_type,
+                            $routing_name,
+                            $trader->membership_type,
+                            $trader->prefecture,
+                            $trader->cell_content,
+                            $trader->company_name,
+                            $trader->first_representative,
+                            $trader->correspondence_situation,
+                            $trader->mobilephone_number,
+                            $trader->telephone_number
+                        ]);
+                    }
+                });
+            
+            // Close the output stream
+            fclose($handle);
+        }, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="業者CSVサンプル'.date('d-m-Y').'.csv"',
+        ]);
+
+        return $response;
     }
 }

@@ -25,8 +25,8 @@ use Illuminate\Support\Facades\DB;
 
 Route::post('/login', [AuthController::class, 'login'])->name('login.api');
 Route::post('/register', [AuthController::class, 'register'])->name('register.api');
-Route::get('/download-csv', [CompanyController::class, 'export_csv']);
-Route::get('/download-excel', [CompanyController::class, 'export_excel']);
+Route::get('/download-csv', [TraderController::class, 'export_csv']);
+// Route::get('/download-excel', [CompanyController::class, 'export_excel']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('users', UserController::class);
