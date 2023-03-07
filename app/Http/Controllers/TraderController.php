@@ -187,7 +187,7 @@ class TraderController extends Controller
         if($traders){
             foreach ($traders as $trader) {
                 $item = array(
-                    'tid' => isset($trader[0]) ? $trader[0] : '',
+                    'id' => isset($trader[0]) ? $trader[0] : '',
                     'date' => isset($trader[1]) ? $trader[1] : '',
                     'site_type' => isset($trader[2]) ? $trader[2] : '',
                     'routing' => isset($trader[3]) ? $trader[3] : '',
@@ -204,7 +204,7 @@ class TraderController extends Controller
             }
 
             foreach ($new_traders as $item) {
-                $trader_exist = Trader::where('tid', $item['tid'])->first();
+                $trader_exist = Trader::where('id', $item['id'])->first();
                 if($trader_exist == null) {
                     $routing_id = 0;
                     $prefecture = '';
@@ -225,7 +225,7 @@ class TraderController extends Controller
                         $telephonephone_number = str_replace('-', '', $item['telephone_number']);
                     }
                     Trader::create([
-                        'tid' =>$item['tid'], 
+                        // 'tid' =>$item['tid'], 
                         'date' =>$item['date'], 
                         'site_type' =>$item['site_type'], 
                         'routing_id' =>$routing_id, 
