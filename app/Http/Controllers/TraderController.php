@@ -171,7 +171,7 @@ class TraderController extends Controller
     {
         try{
             if (($open = fopen($request->file, "r"))) {
-                while (($data = fgetcsv($open, 2000, ",")) !== FALSE) {
+                while (($data = fgetcsv($open, 5000, ",")) !== FALSE) {
                     // $data = array_map("utf8_encode", $data);
                     $traders[] = $data;
                 }
